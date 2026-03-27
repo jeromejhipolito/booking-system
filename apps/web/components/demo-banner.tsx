@@ -12,7 +12,7 @@ export default function DemoBanner() {
           You are viewing a live demo. All data is simulated.
         </p>
         <a
-          href="https://github.com/user/booking-system-v2"
+          href="https://github.com/jeromejhipolito/booking-system"
           target="_blank"
           rel="noopener noreferrer"
           className="text-primary-400 hover:text-primary-300 font-medium transition-colors"
