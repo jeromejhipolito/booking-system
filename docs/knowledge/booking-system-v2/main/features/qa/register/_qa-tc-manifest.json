@@ -1,0 +1,952 @@
+{
+  "metadata": {
+    "feature": "register",
+    "url": "http://localhost:3002/register",
+    "created_at": "2026-03-26T04:43:00Z",
+    "convergence_rounds": 3,
+    "round_1_count": 45,
+    "round_2_delta": 18,
+    "round_3_delta": 9,
+    "total_tcs": 72
+  },
+  "test_cases": [
+    {
+      "id": "QA-001",
+      "category": "UI-LAYOUT",
+      "title": "Page loads with correct heading and subheading",
+      "priority": "P1",
+      "steps": [
+        "Navigate to /register",
+        "Verify h1 = 'Create your account'",
+        "Verify subheading = 'Start booking or listing services today'"
+      ],
+      "expected": "Heading and subheading display correctly",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-002",
+      "category": "UI-LAYOUT",
+      "title": "Default role selection is 'Book Services' (customer)",
+      "priority": "P1",
+      "steps": [
+        "Navigate to /register",
+        "Verify 'Book Services' button has active/selected styling",
+        "Verify 'Offer Services' button is unselected"
+      ],
+      "expected": "Book Services is pre-selected with blue border/bg",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-003",
+      "category": "UI-LAYOUT",
+      "title": "All form fields render with correct labels and placeholders",
+      "priority": "P1",
+      "steps": [
+        "Navigate to /register",
+        "Verify Full name field with placeholder 'John Doe'",
+        "Verify Email address field with placeholder 'you@example.com'",
+        "Verify Password field with placeholder 'At least 8 characters'"
+      ],
+      "expected": "All 3 fields render with labels and placeholders",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-004",
+      "category": "UI-LAYOUT",
+      "title": "Submit button text shows 'Create Account' for customer role",
+      "priority": "P1",
+      "steps": [
+        "Navigate to /register",
+        "Verify default submit button text = 'Create Account'"
+      ],
+      "expected": "Button shows 'Create Account'",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-005",
+      "category": "FUNCTIONAL",
+      "title": "Role toggle - switching to 'Offer Services' changes button text",
+      "priority": "P1",
+      "steps": [
+        "Navigate to /register",
+        "Click 'Offer Services' button",
+        "Verify submit button text = 'Create Provider Account'",
+        "Verify 'Offer Services' has active styling"
+      ],
+      "expected": "Button text changes to 'Create Provider Account'",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-006",
+      "category": "FUNCTIONAL",
+      "title": "Role toggle - switching back to 'Book Services'",
+      "priority": "P2",
+      "steps": [
+        "Navigate to /register",
+        "Click 'Offer Services'",
+        "Click 'Book Services'",
+        "Verify submit button text reverts to 'Create Account'"
+      ],
+      "expected": "Button text reverts, Book Services re-selected",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-007",
+      "category": "VALIDATION",
+      "title": "Empty name field - blur validation",
+      "priority": "P1",
+      "steps": [
+        "Navigate to /register",
+        "Click Full name field",
+        "Click Email field (blur name)",
+        "Verify error 'Name is required' appears below name field"
+      ],
+      "expected": "Error message 'Name is required' displayed in red",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-008",
+      "category": "VALIDATION",
+      "title": "Name with 1 character - client validation",
+      "priority": "P1",
+      "steps": [
+        "Navigate to /register",
+        "Type 'A' in name field",
+        "Click Email field (blur name)",
+        "Verify error 'Name must be at least 2 characters'"
+      ],
+      "expected": "Min length error shown for 1-char name",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-009",
+      "category": "VALIDATION",
+      "title": "Name with exactly 2 characters - boundary pass",
+      "priority": "P2",
+      "steps": [
+        "Navigate to /register",
+        "Type 'AB' in name field",
+        "Click Email field (blur name)",
+        "Verify NO error appears"
+      ],
+      "expected": "No validation error for 2-char name",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-010",
+      "category": "VALIDATION",
+      "title": "Empty email field - blur validation",
+      "priority": "P1",
+      "steps": [
+        "Navigate to /register",
+        "Click Email field",
+        "Click Password field (blur email)",
+        "Verify error 'Email is required'"
+      ],
+      "expected": "Error message 'Email is required' in red",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-011",
+      "category": "VALIDATION",
+      "title": "Invalid email format - missing @",
+      "priority": "P1",
+      "steps": [
+        "Navigate to /register",
+        "Type 'invalidemail' in email field",
+        "Blur email field",
+        "Verify error 'Please enter a valid email'"
+      ],
+      "expected": "Format error displayed",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-012",
+      "category": "VALIDATION",
+      "title": "Invalid email format - missing domain",
+      "priority": "P2",
+      "steps": [
+        "Type 'user@' in email field",
+        "Blur email field",
+        "Verify format error"
+      ],
+      "expected": "Format error displayed",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-013",
+      "category": "VALIDATION",
+      "title": "Invalid email format - missing TLD",
+      "priority": "P2",
+      "steps": [
+        "Type 'user@domain' in email field",
+        "Blur email field",
+        "Verify format error"
+      ],
+      "expected": "Format error displayed (regex requires dot in domain)",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-014",
+      "category": "VALIDATION",
+      "title": "Valid email format passes client validation",
+      "priority": "P1",
+      "steps": [
+        "Type 'user@example.com' in email field",
+        "Blur email field",
+        "Verify NO error"
+      ],
+      "expected": "No error displayed",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-015",
+      "category": "VALIDATION",
+      "title": "Empty password field - blur validation",
+      "priority": "P1",
+      "steps": [
+        "Click Password field",
+        "Click outside (blur)",
+        "Verify error 'Password is required'"
+      ],
+      "expected": "Error 'Password is required' in red",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-016",
+      "category": "VALIDATION",
+      "title": "Password with 7 characters - boundary fail",
+      "priority": "P1",
+      "steps": [
+        "Type '1234567' in password field",
+        "Blur field",
+        "Verify error 'Password must be at least 8 characters'"
+      ],
+      "expected": "Min length error for 7-char password",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-017",
+      "category": "VALIDATION",
+      "title": "Password with exactly 8 characters - boundary pass",
+      "priority": "P1",
+      "steps": [
+        "Type '12345678' in password field",
+        "Blur field",
+        "Verify NO error"
+      ],
+      "expected": "No validation error",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-018",
+      "category": "VALIDATION",
+      "title": "Submit with all fields empty - shows all errors",
+      "priority": "P1",
+      "steps": [
+        "Navigate to /register",
+        "Click 'Create Account' without filling fields",
+        "Verify all 3 errors appear simultaneously"
+      ],
+      "expected": "Name, email, password errors all visible",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-019",
+      "category": "FUNCTIONAL",
+      "title": "Successful customer registration - full flow",
+      "priority": "P0",
+      "steps": [
+        "Navigate to /register",
+        "Select 'Book Services'",
+        "Enter valid name, email, password",
+        "Click 'Create Account'",
+        "Verify loading spinner + 'Creating account...'",
+        "Verify success message 'Account created! Welcome, {name}.'",
+        "Verify redirect to /services after ~1s"
+      ],
+      "expected": "Registration succeeds, token stored, redirect to /services",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-020",
+      "category": "FUNCTIONAL",
+      "title": "Successful provider registration - full flow",
+      "priority": "P0",
+      "steps": [
+        "Navigate to /register",
+        "Select 'Offer Services'",
+        "Enter valid name, email, password",
+        "Click 'Create Provider Account'",
+        "Verify loading spinner",
+        "Verify success message",
+        "Verify redirect to /onboarding after ~1s"
+      ],
+      "expected": "Registration succeeds, redirect to /onboarding",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-021",
+      "category": "FUNCTIONAL",
+      "title": "localStorage stores token after successful registration",
+      "priority": "P1",
+      "steps": [
+        "Complete successful registration",
+        "Check localStorage.getItem('token')",
+        "Verify it contains a JWT string"
+      ],
+      "expected": "JWT token stored in localStorage",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-022",
+      "category": "FUNCTIONAL",
+      "title": "localStorage stores user object after successful registration",
+      "priority": "P1",
+      "steps": [
+        "Complete successful registration",
+        "Check localStorage.getItem('user')",
+        "Parse JSON and verify user object has correct fields"
+      ],
+      "expected": "User object with email, firstName, role stored",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-023",
+      "category": "FUNCTIONAL",
+      "title": "Name parsing - single word name",
+      "priority": "P2",
+      "steps": [
+        "Enter 'Madonna' as full name",
+        "Complete registration",
+        "Verify API receives firstName='Madonna', lastName='Madonna'"
+      ],
+      "expected": "Single name used for both first and last",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-024",
+      "category": "FUNCTIONAL",
+      "title": "Name parsing - two word name",
+      "priority": "P1",
+      "steps": [
+        "Enter 'John Doe' as full name",
+        "Complete registration",
+        "Verify API receives firstName='John', lastName='Doe'"
+      ],
+      "expected": "Name split correctly at first space",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-025",
+      "category": "FUNCTIONAL",
+      "title": "Name parsing - three+ word name",
+      "priority": "P2",
+      "steps": [
+        "Enter 'Mary Jane Watson' as full name",
+        "Complete registration",
+        "Verify API receives firstName='Mary', lastName='Jane Watson'"
+      ],
+      "expected": "First word = firstName, rest = lastName",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-026",
+      "category": "ERROR",
+      "title": "Duplicate email shows error message",
+      "priority": "P0",
+      "steps": [
+        "Register with email that already exists",
+        "Verify red error banner appears with 'Email already registered'"
+      ],
+      "expected": "Error banner displays conflict message",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-027",
+      "category": "ERROR",
+      "title": "Error message clears when retrying with new data",
+      "priority": "P2",
+      "steps": [
+        "Trigger duplicate email error",
+        "Change email to a new one",
+        "Submit again",
+        "Verify error clears and new attempt proceeds"
+      ],
+      "expected": "Old error clears on retry",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-028",
+      "category": "NAVIGATION",
+      "title": "'Sign in' link navigates to /login",
+      "priority": "P1",
+      "steps": [
+        "Navigate to /register",
+        "Click 'Sign in' link at bottom of form",
+        "Verify URL changes to /login"
+      ],
+      "expected": "Navigates to login page",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-029",
+      "category": "NAVIGATION",
+      "title": "Header 'Login' link navigates to /login",
+      "priority": "P2",
+      "steps": [
+        "Click 'Login' in header",
+        "Verify URL changes to /login"
+      ],
+      "expected": "Navigates to login page",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-030",
+      "category": "NAVIGATION",
+      "title": "Header 'Sign Up' link is active/highlighted on /register",
+      "priority": "P3",
+      "steps": [
+        "Navigate to /register",
+        "Verify 'Sign Up' button in header has active styling"
+      ],
+      "expected": "Sign Up link visually active",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-031",
+      "category": "NAVIGATION",
+      "title": "BookIt logo navigates to home page",
+      "priority": "P3",
+      "steps": [
+        "Click BookIt logo",
+        "Verify navigates to /"
+      ],
+      "expected": "Navigates to home page",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-032",
+      "category": "NAVIGATION",
+      "title": "'Browse Services' link navigates to /services",
+      "priority": "P3",
+      "steps": [
+        "Click 'Browse Services' in header",
+        "Verify URL changes to /services"
+      ],
+      "expected": "Navigates to services page",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-033",
+      "category": "ACCESSIBILITY",
+      "title": "Tab order follows logical sequence",
+      "priority": "P2",
+      "steps": [
+        "Press Tab repeatedly from page load",
+        "Verify order: logo > nav links > role buttons > name > email > password > submit > sign in"
+      ],
+      "expected": "Logical top-to-bottom tab order",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-034",
+      "category": "ACCESSIBILITY",
+      "title": "Form submittable via Enter key",
+      "priority": "P1",
+      "steps": [
+        "Fill all fields with valid data",
+        "Press Enter while focused on password field",
+        "Verify form submits"
+      ],
+      "expected": "Enter key triggers form submission",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-035",
+      "category": "ACCESSIBILITY",
+      "title": "Password field masks input",
+      "priority": "P1",
+      "steps": [
+        "Type in password field",
+        "Verify input type is 'password' (masked)"
+      ],
+      "expected": "Characters are masked with dots",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-036",
+      "category": "ACCESSIBILITY",
+      "title": "Error messages use red color styling",
+      "priority": "P2",
+      "steps": [
+        "Trigger validation error",
+        "Verify error text is red (danger-600)",
+        "Verify field border turns red (danger-500)"
+      ],
+      "expected": "Visual error indicators present",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-037",
+      "category": "RESPONSIVE",
+      "title": "Mobile layout (375px) - hamburger menu appears",
+      "priority": "P2",
+      "steps": [
+        "Resize viewport to 375x812",
+        "Verify navigation collapses to hamburger menu",
+        "Verify form fields stack vertically"
+      ],
+      "expected": "Mobile-responsive layout with hamburger menu",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-038",
+      "category": "RESPONSIVE",
+      "title": "Mobile layout - role buttons fit screen",
+      "priority": "P2",
+      "steps": [
+        "At 375px width, verify both role buttons visible",
+        "Verify buttons don't overflow",
+        "Verify text is readable"
+      ],
+      "expected": "Role buttons fit within mobile width",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-039",
+      "category": "RESPONSIVE",
+      "title": "Mobile layout - submit button full width",
+      "priority": "P3",
+      "steps": [
+        "At 375px width, verify submit button spans full form width"
+      ],
+      "expected": "Full-width submit button on mobile",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-040",
+      "category": "SECURITY",
+      "title": "XSS in name field - script tag sanitized",
+      "priority": "P1",
+      "steps": [
+        "Enter '<script>alert(1)</script>' as name",
+        "Submit form",
+        "Verify script is NOT executed",
+        "Verify name is treated as plain text"
+      ],
+      "expected": "Script not executed, stored as text",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-041",
+      "category": "SECURITY",
+      "title": "Rate limiting - 6th request within 60s blocked",
+      "priority": "P1",
+      "steps": [
+        "Make 5 rapid registration API calls",
+        "Make 6th call",
+        "Verify 429 Too Many Requests response"
+      ],
+      "expected": "429 status after exceeding rate limit",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-042",
+      "category": "SECURITY",
+      "title": "Password not visible in API request payload (network tab)",
+      "priority": "P2",
+      "steps": [
+        "Submit registration form",
+        "Check network request",
+        "Verify password is sent over HTTPS (or localhost)"
+      ],
+      "expected": "Password sent in request body, not URL params",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-043",
+      "category": "API",
+      "title": "API validates email format server-side",
+      "priority": "P1",
+      "steps": [
+        "POST to /v1/auth/register with email='invalid'",
+        "Verify 400 with 'email must be an email'"
+      ],
+      "expected": "400 Bad Request with validation error",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-044",
+      "category": "API",
+      "title": "API validates password min length server-side",
+      "priority": "P1",
+      "steps": [
+        "POST with password='1234567' (7 chars)",
+        "Verify 400 with min length error"
+      ],
+      "expected": "400 Bad Request",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-045",
+      "category": "API",
+      "title": "API validates password max length (128) server-side",
+      "priority": "P2",
+      "steps": [
+        "POST with password of 129 chars",
+        "Verify 400 with max length error"
+      ],
+      "expected": "400 Bad Request",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-046",
+      "category": "API",
+      "title": "API rejects invalid role value",
+      "priority": "P2",
+      "steps": [
+        "POST with role='admin'",
+        "Verify 400 with role validation error"
+      ],
+      "expected": "400 Bad Request, role must be provider|customer",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-047",
+      "category": "API",
+      "title": "API returns correct user object structure",
+      "priority": "P1",
+      "steps": [
+        "POST valid registration",
+        "Verify response has: user.id, user.email, user.firstName, user.lastName, user.role, user.isActive, accessToken, refreshToken"
+      ],
+      "expected": "Complete user object + tokens returned",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-048",
+      "category": "API",
+      "title": "API defaults role to 'customer' when not provided",
+      "priority": "P2",
+      "steps": [
+        "POST without role field",
+        "Verify response user.role = 'customer'"
+      ],
+      "expected": "Role defaults to customer",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-049",
+      "category": "VALIDATION",
+      "title": "Client-server mismatch - name min length (client=2, server=1)",
+      "priority": "P2",
+      "steps": [
+        "Bypass client validation",
+        "POST with firstName='A' (1 char)",
+        "Verify server accepts it (200)",
+        "Then try typing 'A' in UI name field",
+        "Verify client rejects with 'at least 2 characters'"
+      ],
+      "expected": "Server accepts 1-char name but client rejects it - mismatch documented",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-050",
+      "category": "FUNCTIONAL",
+      "title": "Loading state - submit button disabled during request",
+      "priority": "P1",
+      "steps": [
+        "Fill valid data and submit",
+        "Observe button state during API call",
+        "Verify button shows spinner + 'Creating account...'",
+        "Verify button is disabled"
+      ],
+      "expected": "Button disabled with loading text during submission",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-051",
+      "category": "FUNCTIONAL",
+      "title": "Double submit prevention",
+      "priority": "P1",
+      "steps": [
+        "Fill valid data",
+        "Click submit rapidly twice",
+        "Verify only one API request is made"
+      ],
+      "expected": "Second click blocked by disabled state",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-052",
+      "category": "VALIDATION",
+      "title": "Email with spaces - client validation",
+      "priority": "P2",
+      "steps": [
+        "Enter 'user @example.com' (space before @)",
+        "Blur field",
+        "Verify validation error"
+      ],
+      "expected": "Invalid email error",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-053",
+      "category": "VALIDATION",
+      "title": "Name with leading/trailing spaces - trimmed",
+      "priority": "P3",
+      "steps": [
+        "Enter '  John Doe  ' (padded spaces)",
+        "Submit form",
+        "Verify API receives trimmed name"
+      ],
+      "expected": "Name is trimmed before parsing",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-054",
+      "category": "FUNCTIONAL",
+      "title": "Success message shows correct first name",
+      "priority": "P1",
+      "steps": [
+        "Register with name 'Jane Smith'",
+        "Verify success message = 'Account created! Welcome, Jane.'"
+      ],
+      "expected": "First name extracted correctly for welcome message",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-055",
+      "category": "ERROR",
+      "title": "Network error shows fallback error message",
+      "priority": "P2",
+      "steps": [
+        "Disconnect API server (or block network)",
+        "Submit form",
+        "Verify 'Registration failed.' error displays"
+      ],
+      "expected": "Graceful error handling for network failure",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-056",
+      "category": "VALIDATION",
+      "title": "Email case insensitivity",
+      "priority": "P3",
+      "steps": [
+        "Register with 'User@Example.COM'",
+        "Verify registration succeeds",
+        "Check if email stored lowercase or as-is"
+      ],
+      "expected": "Email accepted regardless of case",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-057",
+      "category": "VALIDATION",
+      "title": "Password with only spaces (8 spaces)",
+      "priority": "P2",
+      "steps": [
+        "Enter 8 spaces as password",
+        "Submit form",
+        "Check if client/server accepts it"
+      ],
+      "expected": "Document whether space-only password is accepted",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-058",
+      "category": "FUNCTIONAL",
+      "title": "Name with unicode characters (accented, CJK)",
+      "priority": "P3",
+      "steps": [
+        "Register with name containing unicode (e.g. 'Jose Garcia')",
+        "Verify registration succeeds",
+        "Verify name stored correctly"
+      ],
+      "expected": "Unicode names handled correctly",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-059",
+      "category": "ACCESSIBILITY",
+      "title": "Inputs lack name attribute (autocomplete warning)",
+      "priority": "P2",
+      "steps": [
+        "Inspect input elements",
+        "Verify none have name attribute",
+        "Check console for autocomplete warning"
+      ],
+      "expected": "Document: inputs missing name attr, browser warns about autocomplete",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-060",
+      "category": "ACCESSIBILITY",
+      "title": "Inputs lack aria-describedby for error messages",
+      "priority": "P2",
+      "steps": [
+        "Trigger validation errors",
+        "Inspect inputs for aria-describedby",
+        "Verify error messages are NOT programmatically linked"
+      ],
+      "expected": "Document: no aria-describedby on inputs (a11y gap)",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-061",
+      "category": "FUNCTIONAL",
+      "title": "Validation errors clear when field receives valid input",
+      "priority": "P1",
+      "steps": [
+        "Trigger name error ('Name is required')",
+        "Type valid name (2+ chars)",
+        "Blur field",
+        "Verify error disappears"
+      ],
+      "expected": "Error clears after valid input + blur",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-062",
+      "category": "RESPONSIVE",
+      "title": "Tablet layout (768px) renders correctly",
+      "priority": "P3",
+      "steps": [
+        "Resize to 768x1024",
+        "Verify form layout centered",
+        "Verify no overflow or clipping"
+      ],
+      "expected": "Clean tablet layout",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-063",
+      "category": "SECURITY",
+      "title": "SQL injection in email field",
+      "priority": "P1",
+      "steps": [
+        "Enter \"admin'--@test.com\" as email",
+        "Submit form",
+        "Verify no SQL error, proper validation error returned"
+      ],
+      "expected": "Parameterized queries prevent injection",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-064",
+      "category": "API",
+      "title": "API returns JWT with correct claims",
+      "priority": "P2",
+      "steps": [
+        "Register successfully",
+        "Decode JWT accessToken",
+        "Verify claims: sub (user ID), email, role, iat, exp"
+      ],
+      "expected": "JWT contains correct user claims",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-065",
+      "category": "API",
+      "title": "Refresh token is valid UUID format",
+      "priority": "P3",
+      "steps": [
+        "Register successfully",
+        "Verify refreshToken matches UUID v4 pattern"
+      ],
+      "expected": "Valid UUID refresh token",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-066",
+      "category": "FUNCTIONAL",
+      "title": "Page title is correct",
+      "priority": "P3",
+      "steps": [
+        "Navigate to /register",
+        "Verify document.title = 'BookIt - Online Booking System'"
+      ],
+      "expected": "Correct page title",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-067",
+      "category": "VALIDATION",
+      "title": "Email with plus addressing (user+tag@example.com)",
+      "priority": "P3",
+      "steps": [
+        "Enter 'user+tag@example.com'",
+        "Blur field",
+        "Verify client accepts it"
+      ],
+      "expected": "Plus addressing accepted by client validation",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-068",
+      "category": "FUNCTIONAL",
+      "title": "Form retains input after failed submission",
+      "priority": "P1",
+      "steps": [
+        "Fill all fields",
+        "Submit with duplicate email",
+        "Verify all field values are retained after error"
+      ],
+      "expected": "User doesn't lose their input on error",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-069",
+      "category": "UI-LAYOUT",
+      "title": "Error field border styling (red border on invalid fields)",
+      "priority": "P2",
+      "steps": [
+        "Trigger validation on name field",
+        "Verify border changes to red (border-danger-500)",
+        "Verify focus ring is red (focus:ring-danger-500)"
+      ],
+      "expected": "Red border and focus ring on invalid fields",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-070",
+      "category": "FUNCTIONAL",
+      "title": "Redirect timing - customer redirect after ~1 second",
+      "priority": "P2",
+      "steps": [
+        "Register as customer",
+        "Start timer on success message appearance",
+        "Verify redirect to /services happens after ~1000ms"
+      ],
+      "expected": "Redirect delay approximately 1 second",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-071",
+      "category": "SECURITY",
+      "title": "Password not logged in console",
+      "priority": "P2",
+      "steps": [
+        "Submit registration",
+        "Check browser console for any password logging",
+        "Verify password not exposed"
+      ],
+      "expected": "No password leakage in console",
+      "status": "PENDING"
+    },
+    {
+      "id": "QA-072",
+      "category": "API",
+      "title": "API accepts empty body and returns validation errors",
+      "priority": "P2",
+      "steps": [
+        "POST to /v1/auth/register with empty JSON {}",
+        "Verify 400 with array of all required field errors"
+      ],
+      "expected": "All field validation errors returned at once",
+      "status": "PENDING"
+    }
+  ]
+}

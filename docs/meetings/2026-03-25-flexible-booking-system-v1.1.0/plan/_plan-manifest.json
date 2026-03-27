@@ -1,0 +1,56 @@
+{
+  "_meta": {
+    "smart_workflows_version": "4.21.0",
+    "generated_by": "company --to-plan",
+    "generated_at": "2026-03-26T01:00:00.000Z"
+  },
+  "source": "business-requirements.md (43 BRs, reviewed by 14 roles)",
+  "strategy": "multi-layer",
+  "plans": {
+    "backend": {
+      "total_phases": 6,
+      "total_tasks": 29,
+      "phases": [
+        { "id": "A1", "name": "Setup + README", "file": "plan-A-backend/A1-setup.md", "depends_on": [], "brs_covered": ["BR-006","BR-012","BR-014","BR-031","BR-033"], "task_count": 6, "line_count": 64 },
+        { "id": "A2", "name": "Auth & Models", "file": "plan-A-backend/A2-auth-models.md", "depends_on": ["A1"], "brs_covered": ["BR-005","BR-011","BR-012","BR-013","BR-031","BR-038"], "task_count": 6, "line_count": 65 },
+        { "id": "A3a", "name": "Availability", "file": "plan-A-backend/A3a-availability.md", "depends_on": ["A2"], "brs_covered": ["BR-002","BR-003","BR-014"], "task_count": 4, "line_count": 51 },
+        { "id": "A3b", "name": "Booking (CQRS)", "file": "plan-A-backend/A3b-booking.md", "depends_on": ["A3a"], "brs_covered": ["BR-004","BR-005","BR-006","BR-008","BR-009","BR-013","BR-020","BR-038"], "task_count": 5, "line_count": 59 },
+        { "id": "A4", "name": "Async Notifications", "file": "plan-A-backend/A4-notifications.md", "depends_on": ["A3b"], "brs_covered": ["BR-003","BR-007","BR-008","BR-015","BR-016","BR-018","BR-019","BR-030"], "task_count": 5, "line_count": 56 },
+        { "id": "A5", "name": "OpenAPI + Events", "file": "plan-A-backend/A5-openapi.md", "depends_on": ["A4"], "brs_covered": ["BR-032","BR-036"], "task_count": 3, "line_count": 43 }
+      ]
+    },
+    "frontend": {
+      "total_phases": 4,
+      "total_tasks": 23,
+      "phases": [
+        { "id": "B1", "name": "Setup + SEO Base", "file": "plan-B-frontend/B1-setup.md", "depends_on": [], "brs_covered": ["BR-001","BR-014","BR-034","BR-035"], "task_count": 6, "line_count": 64 },
+        { "id": "B2", "name": "Public Pages + SEO", "file": "plan-B-frontend/B2-public-pages.md", "depends_on": ["B1"], "brs_covered": ["BR-001","BR-005","BR-034","BR-035","BR-037","BR-038"], "task_count": 5, "line_count": 65 },
+        { "id": "B3", "name": "Booking Wizard", "file": "plan-B-frontend/B3-booking-flow.md", "depends_on": ["B2"], "brs_covered": ["BR-003","BR-004","BR-005","BR-009","BR-014","BR-015","BR-038"], "task_count": 6, "line_count": 71 },
+        { "id": "B4", "name": "Dashboards + Events", "file": "plan-B-frontend/B4-dashboards.md", "depends_on": ["B3"], "brs_covered": ["BR-008","BR-010","BR-011","BR-017","BR-036","BR-038"], "task_count": 6, "line_count": 74 }
+      ]
+    },
+    "integration": {
+      "total_phases": 6,
+      "total_tasks": 27,
+      "phases": [
+        { "id": "C1", "name": "Contract Audit", "file": "plan-C-integration/C1-contract-audit.md", "depends_on": ["A2","B2"], "brs_covered": ["ALL"], "task_count": 4, "line_count": 47 },
+        { "id": "C2", "name": "API Wiring + SSR", "file": "plan-C-integration/C2-api-wiring.md", "depends_on": ["C1"], "brs_covered": ["BR-001","BR-005","BR-012","BR-034"], "task_count": 5, "line_count": 59 },
+        { "id": "C3", "name": "Core Integration", "file": "plan-C-integration/C3-core-integration.md", "depends_on": ["C2"], "brs_covered": ["BR-003","BR-004","BR-006","BR-007","BR-008","BR-010","BR-011","BR-017"], "task_count": 5, "line_count": 58 },
+        { "id": "C4", "name": "Real-Time + Events", "file": "plan-C-integration/C4-realtime.md", "depends_on": ["C3"], "brs_covered": ["BR-003","BR-007","BR-015","BR-016","BR-036"], "task_count": 4, "line_count": 49 },
+        { "id": "C5", "name": "Security + E2E", "file": "plan-C-integration/C5-security-e2e.md", "depends_on": ["C4"], "brs_covered": ["BR-006","BR-012","BR-013","BR-031"], "task_count": 5, "line_count": 57 },
+        { "id": "C6", "name": "Deployment", "file": "plan-C-integration/C6-deployment.md", "depends_on": ["C5"], "brs_covered": ["BR-006","BR-011","BR-032","BR-033"], "task_count": 4, "line_count": 50 }
+      ]
+    }
+  },
+  "parallel_opportunities": [
+    "A1-A5 can run simultaneously with B1-B4",
+    "C1 starts when A2 + B2 are complete"
+  ],
+  "br_coverage": {
+    "covered": ["BR-001","BR-002","BR-003","BR-004","BR-005","BR-006","BR-007","BR-008","BR-009","BR-010","BR-011","BR-012","BR-013","BR-014","BR-015","BR-016","BR-017","BR-018","BR-019","BR-020","BR-030","BR-031","BR-032","BR-033","BR-034","BR-035","BR-036","BR-037","BR-038"],
+    "not_covered_in_plans": ["BR-021","BR-022","BR-023","BR-024","BR-025","BR-039","BR-040","BR-041","BR-042","BR-043"],
+    "not_covered_reason": "COULD Have (v1.1) and WON'T Have — deferred by design",
+    "must_coverage_pct": 100,
+    "should_coverage_pct": 100
+  }
+}

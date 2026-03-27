@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Allow: /services
+Allow: /services/*
+Disallow: /book/*
+Disallow: /dashboard
+Disallow: /onboarding
+Disallow: /cancel/*
+Disallow: /reschedule/*
+Disallow: /login
+Disallow: /register
+
+Sitemap: https://bookease.com/sitemap.xml

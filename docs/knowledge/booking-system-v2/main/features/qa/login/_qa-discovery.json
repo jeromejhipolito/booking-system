@@ -1,0 +1,96 @@
+{
+  "feature": "login",
+  "url": "http://localhost:3002/login",
+  "discovery_rounds": 3,
+  "discovered_at": "2026-03-26T05:53:00Z",
+  "pages": [
+    { "url": "/login", "title": "BookIt - Online Booking System", "heading": "Welcome back", "subheading": "Sign in to your account to continue" }
+  ],
+  "navigation": {
+    "header_links": [
+      { "text": "BookIt", "href": "/" },
+      { "text": "Browse Services", "href": "/services" },
+      { "text": "How It Works", "href": "/#how-it-works" },
+      { "text": "Login", "href": "/login", "active": true },
+      { "text": "Sign Up", "href": "/register" }
+    ],
+    "footer_links": [
+      { "text": "Sign up", "href": "/register", "context": "Don't have an account?" }
+    ]
+  },
+  "components": {
+    "form_fields": [
+      {
+        "id": "email", "label": "Email address", "type": "email", "placeholder": "you@example.com",
+        "html_name_attr": null, "autocomplete_attr": null, "aria_describedby": null,
+        "client_validation": {
+          "required": { "message": "Email is required" },
+          "pattern": { "regex": "/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/", "message": "Please enter a valid email" }
+        },
+        "triggers_on": "blur, submit"
+      },
+      {
+        "id": "password", "label": "Password", "type": "password", "placeholder": "Enter your password",
+        "html_name_attr": null, "autocomplete_attr": null, "aria_describedby": null,
+        "client_validation": {
+          "required": { "message": "Password is required" },
+          "minLength": { "value": 6, "message": "Password must be at least 6 characters" }
+        },
+        "triggers_on": "blur, submit"
+      }
+    ],
+    "submit_button": { "text": "Sign In", "text_loading": "Signing in...", "disabled_when_loading": true },
+    "alerts": {
+      "success": { "template": "Welcome back, {firstName}!", "style": "green" },
+      "error": { "style": "red", "fallback_message": "Login failed." }
+    }
+  },
+  "api_contract": {
+    "endpoint": "POST http://localhost:3001/v1/auth/login",
+    "auth_required": false,
+    "rate_limit": { "limit": 5, "ttl_seconds": 60 },
+    "request_payload": { "email": "string", "password": "string" },
+    "server_validation": { "email": "@IsEmail()", "password": "@IsString(), @MinLength(1)" },
+    "success_response": { "status": 200, "body": { "user": "object", "accessToken": "JWT", "refreshToken": "UUID" } },
+    "error_responses": [
+      { "status": 401, "condition": "invalid email or password", "body": { "message": "Invalid credentials" } },
+      { "status": 401, "condition": "deactivated account", "body": { "message": "Account is deactivated" } },
+      { "status": 429, "condition": "rate limit exceeded" }
+    ]
+  },
+  "post_login": {
+    "localStorage": { "token": "accessToken", "user": "JSON.stringify(user)" },
+    "redirect_delay_ms": 1000,
+    "redirect_provider": "/dashboard",
+    "redirect_customer": "/services"
+  },
+  "route_protection": {
+    "private_routes_discovered": ["/dashboard", "/onboarding"],
+    "client_side_guard": "NONE - no middleware, no auth context, no redirect",
+    "api_side_guard": "JWT auth guard (returns 401 Unauthorized)",
+    "behavior_when_unauthenticated": "Page renders fully, API calls fail with 401, error message shown inline",
+    "behavior_when_authenticated_visits_login": "No redirect - login page renders normally, can re-login"
+  },
+  "validation_mismatches": [
+    {
+      "field": "password",
+      "client_login_rule": "minLength: 6",
+      "client_register_rule": "minLength: 8",
+      "server_login_rule": "minLength: 1",
+      "server_register_rule": "minLength: 8",
+      "severity": "medium"
+    }
+  ],
+  "accessibility_issues": [
+    "No name attributes on inputs",
+    "No autocomplete attributes (console warning)",
+    "No aria-describedby linking errors to inputs"
+  ],
+  "security_notes": [
+    "Same error message for wrong email and wrong password (no enumeration)",
+    "Rate limiting: 5 attempts per 60 seconds",
+    "Token stored in localStorage (XSS vulnerable)",
+    "No CSRF protection (SPA pattern)",
+    "JWT expires in 15 minutes, no refresh token flow implemented"
+  ]
+}

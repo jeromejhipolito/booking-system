@@ -1,0 +1,168 @@
+{
+  "feature": "register",
+  "url": "http://localhost:3002/register",
+  "discovery_rounds": 3,
+  "discovered_at": "2026-03-26T04:36:00Z",
+  "pages": [
+    {
+      "url": "/register",
+      "title": "BookIt - Online Booking System",
+      "heading": "Create your account",
+      "subheading": "Start booking or listing services today"
+    }
+  ],
+  "navigation": {
+    "header_links": [
+      { "text": "BookIt", "href": "/", "type": "logo" },
+      { "text": "Browse Services", "href": "/services" },
+      { "text": "How It Works", "href": "/#how-it-works" },
+      { "text": "Login", "href": "/login" },
+      { "text": "Sign Up", "href": "/register", "active": true }
+    ],
+    "footer_links": [
+      { "text": "Sign in", "href": "/login", "context": "Already have an account?" }
+    ],
+    "mobile_hamburger": true
+  },
+  "components": {
+    "role_selector": {
+      "type": "button_group",
+      "label": "I want to...",
+      "options": [
+        { "text": "Book Services", "value": "customer", "default": true, "icon": "user_svg" },
+        { "text": "Offer Services", "value": "provider", "default": false, "icon": "building_svg" }
+      ],
+      "behavior": "toggles active styling, changes submit button text"
+    },
+    "form_fields": [
+      {
+        "id": "name",
+        "label": "Full name",
+        "type": "text",
+        "placeholder": "John Doe",
+        "html_name_attr": null,
+        "autocomplete_attr": null,
+        "required_attr": false,
+        "maxLength_attr": null,
+        "aria_describedby": null,
+        "client_validation": {
+          "required": { "message": "Name is required" },
+          "minLength": { "value": 2, "message": "Name must be at least 2 characters" }
+        },
+        "triggers_on": "blur, submit"
+      },
+      {
+        "id": "email",
+        "label": "Email address",
+        "type": "email",
+        "placeholder": "you@example.com",
+        "html_name_attr": null,
+        "autocomplete_attr": null,
+        "required_attr": false,
+        "maxLength_attr": null,
+        "aria_describedby": null,
+        "client_validation": {
+          "required": { "message": "Email is required" },
+          "pattern": { "regex": "/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/", "message": "Please enter a valid email" }
+        },
+        "triggers_on": "blur, submit"
+      },
+      {
+        "id": "password",
+        "label": "Password",
+        "type": "password",
+        "placeholder": "At least 8 characters",
+        "html_name_attr": null,
+        "autocomplete_attr": null,
+        "required_attr": false,
+        "maxLength_attr": null,
+        "aria_describedby": null,
+        "has_visibility_toggle": false,
+        "has_strength_indicator": false,
+        "client_validation": {
+          "required": { "message": "Password is required" },
+          "minLength": { "value": 8, "message": "Password must be at least 8 characters" }
+        },
+        "triggers_on": "blur, submit"
+      }
+    ],
+    "submit_button": {
+      "text_customer": "Create Account",
+      "text_provider": "Create Provider Account",
+      "text_loading": "Creating account...",
+      "disabled_when_loading": true,
+      "has_spinner": true
+    },
+    "alerts": {
+      "success": {
+        "template": "Account created! Welcome, {firstName}.",
+        "style": "green bg, green border"
+      },
+      "error": {
+        "style": "red bg, red border",
+        "fallback_message": "Registration failed."
+      }
+    }
+  },
+  "api_contract": {
+    "endpoint": "POST http://localhost:3001/v1/auth/register",
+    "auth_required": false,
+    "rate_limit": { "limit": 5, "ttl_seconds": 60 },
+    "request_payload": {
+      "firstName": "string (parsed from full name, first word)",
+      "lastName": "string (parsed from full name, remaining words or duplicate of full name if single word)",
+      "email": "string",
+      "password": "string",
+      "role": "customer | provider"
+    },
+    "name_parsing_logic": "name.trim().split(' '); firstName = parts[0] || name; lastName = parts.slice(1).join(' ') || name",
+    "server_validation": {
+      "email": "@IsEmail()",
+      "password": "@IsString(), @MinLength(8), @MaxLength(128)",
+      "firstName": "@IsString(), @MinLength(1), @MaxLength(100)",
+      "lastName": "@IsString(), @MinLength(1), @MaxLength(100)",
+      "role": "@IsOptional(), @IsIn(['provider', 'customer'])"
+    },
+    "success_response": {
+      "status": 200,
+      "body": { "user": "object", "accessToken": "JWT", "refreshToken": "UUID" }
+    },
+    "error_responses": [
+      { "status": 400, "condition": "validation failures", "body": { "message": "array of errors" } },
+      { "status": 409, "condition": "email already registered", "body": { "message": "Email already registered" } },
+      { "status": 429, "condition": "rate limit exceeded", "body": { "message": "ThrottlerException: Too Many Requests" } }
+    ]
+  },
+  "post_registration": {
+    "localStorage": {
+      "token": "accessToken value",
+      "user": "JSON.stringify(user)"
+    },
+    "redirect_delay_ms": 1000,
+    "redirect_customer": "/services",
+    "redirect_provider": "/onboarding"
+  },
+  "accessibility_issues_found": [
+    "No name attributes on inputs (autocomplete broken)",
+    "No autocomplete attributes (browser console warning)",
+    "No required HTML attributes (JS-only validation)",
+    "No maxLength HTML attributes (no client-side length limit)",
+    "No aria-describedby connecting error messages to inputs",
+    "No password visibility toggle",
+    "No password strength indicator",
+    "Console warning: Input elements should have autocomplete"
+  ],
+  "validation_mismatches": [
+    {
+      "field": "name/firstName",
+      "client_rule": "minLength: 2",
+      "server_rule": "minLength: 1",
+      "severity": "medium",
+      "description": "Client requires 2+ chars but server accepts 1 char - a single char name passes API but fails UI validation"
+    }
+  ],
+  "responsive_breakpoints": {
+    "desktop_1280": "full nav, side-by-side role buttons",
+    "mobile_375": "hamburger menu, stacked layout, full-width buttons"
+  }
+}

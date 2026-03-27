@@ -1,0 +1,18 @@
+{
+  "name": "@booking/shared-utils",
+  "version": "0.0.1",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "date-fns": "^3.3.1",
+    "date-fns-tz": "^3.0.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}

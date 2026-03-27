@@ -1,0 +1,22 @@
+{
+  "_meta": {
+    "feature": "register",
+    "page": "/register",
+    "generated_at": "2026-03-26",
+    "total_tcs": 12
+  },
+  "test_cases": [
+    { "id": "QA-001", "name": "Page renders with all elements", "steps": ["Navigate to /register", "Verify: heading, role selector, 3 inputs, submit button, sign-in link"], "priority": "P0" },
+    { "id": "QA-002", "name": "Role selector defaults to 'Book Services'", "steps": ["Check 'Book Services' button has active/selected state"], "priority": "P0" },
+    { "id": "QA-003", "name": "Role selector toggles to 'Offer Services'", "steps": ["Click 'Offer Services'", "Verify it becomes active, 'Book Services' deactivates"], "priority": "P0" },
+    { "id": "QA-004", "name": "Empty form submit shows validation errors", "steps": ["Click 'Create Account' with empty fields", "Verify validation errors appear for name, email, password"], "priority": "P0" },
+    { "id": "QA-005", "name": "Invalid email shows error on blur", "steps": ["Type 'notanemail' in email field", "Tab/click away", "Verify red border + error message"], "priority": "P0" },
+    { "id": "QA-006", "name": "Short password shows error", "steps": ["Type '123' in password field", "Tab away", "Verify error about minimum 8 characters"], "priority": "P0" },
+    { "id": "QA-007", "name": "Valid registration creates account", "steps": ["Fill: name='QA Test', email='qa-register@test.com', password='test12345'", "Click 'Create Account'", "Verify success message or redirect"], "priority": "P0" },
+    { "id": "QA-008", "name": "Duplicate email shows error", "steps": ["Fill same email as QA-007", "Submit", "Verify error about email already registered"], "priority": "P0" },
+    { "id": "QA-009", "name": "Loading spinner on submit", "steps": ["Fill valid data", "Click submit", "Verify button shows spinner/loading state"], "priority": "P1" },
+    { "id": "QA-010", "name": "Sign-in link navigates to /login", "steps": ["Click 'Sign in' link", "Verify navigation to /login"], "priority": "P1" },
+    { "id": "QA-011", "name": "Mobile responsive (375px)", "steps": ["Resize to 375x812", "Verify form still usable, no overflow"], "priority": "P1" },
+    { "id": "QA-012", "name": "Nav 'Sign Up' shows active state", "steps": ["Check header nav", "Verify 'Sign Up' is visually active on /register"], "priority": "P1" }
+  ]
+}
