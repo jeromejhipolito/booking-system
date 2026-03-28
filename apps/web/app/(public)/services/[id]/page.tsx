@@ -260,6 +260,25 @@ export default function ServiceDetailPage() {
           )}
 
           <ReviewsSection serviceId={serviceId} />
+
+          {/* Technical footer — demo mode only */}
+          {DEMO_MODE && (
+            <div className="pt-6 mt-6 border-t border-muted-200">
+              <p className="text-xs text-muted-400 leading-relaxed">
+                Built solo by Jerome Hipolito · NestJS + Next.js 14
+                <br />
+                Double-booking prevented at the database level via PostgreSQL range exclusion
+              </p>
+              <a
+                href="https://github.com/jeromejhipolito/booking-system/blob/main/apps/api/src/modules/booking"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-primary-500 hover:text-primary-600 font-medium mt-1 inline-block"
+              >
+                View the booking engine source →
+              </a>
+            </div>
+          )}
         </div>
 
         {/* Right — Booking Widget (sticky) */}
