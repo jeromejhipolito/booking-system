@@ -157,7 +157,7 @@ export default function MyBookingsPage() {
                   </svg>
                   {format(parseISO(booking.startTime), 'MMM d, yyyy')} at {format(parseISO(booking.startTime), 'h:mm a')}
                   <span className="mx-2">-</span>
-                  ${booking.price} / {booking.durationMinutes}min
+                  ₱{booking.price.toLocaleString()} / {booking.durationMinutes}min
                 </div>
                 <div className="flex justify-end space-x-3">
                   {activeTab === 'upcoming' && (

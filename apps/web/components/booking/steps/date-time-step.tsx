@@ -93,7 +93,7 @@ export default function DateTimeStep() {
             onClick={() => handleDaySelect(day.date)}
             className={`flex-shrink-0 w-20 py-3 rounded-xl border-2 text-center transition-all ${
               selectedDay === day.date
-                ? 'border-blue-600 bg-primary-50 text-primary-700'
+                ? 'border-primary-600 bg-primary-50 text-primary-700'
                 : 'border-muted-200 hover:border-muted-300 text-muted-600'
             }`}
           >
@@ -162,7 +162,7 @@ export default function DateTimeStep() {
                         onClick={() => handleSlotSelect(slot)}
                         className={`py-2.5 px-3 rounded-lg text-sm font-medium transition-all ${
                           selectedSlot?.id === slot.startTime
-                            ? 'bg-blue-600 text-white'
+                            ? 'bg-primary-600 text-white'
                             : 'bg-muted-100 text-muted-700 hover:bg-muted-200'
                         }`}
                         style={{ height: 'var(--slot-height)' }}
@@ -190,7 +190,7 @@ export default function DateTimeStep() {
                         onClick={() => handleSlotSelect(slot)}
                         className={`py-2.5 px-3 rounded-lg text-sm font-medium transition-all ${
                           selectedSlot?.id === slot.startTime
-                            ? 'bg-blue-600 text-white'
+                            ? 'bg-primary-600 text-white'
                             : 'bg-muted-100 text-muted-700 hover:bg-muted-200'
                         }`}
                         style={{ height: 'var(--slot-height)' }}
@@ -218,7 +218,7 @@ export default function DateTimeStep() {
                         onClick={() => handleSlotSelect(slot)}
                         className={`py-2.5 px-3 rounded-lg text-sm font-medium transition-all ${
                           selectedSlot?.id === slot.startTime
-                            ? 'bg-blue-600 text-white'
+                            ? 'bg-primary-600 text-white'
                             : 'bg-muted-100 text-muted-700 hover:bg-muted-200'
                         }`}
                         style={{ height: 'var(--slot-height)' }}

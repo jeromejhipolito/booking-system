@@ -72,7 +72,7 @@ export default function ServiceDetailPage() {
       <main className="max-w-3xl mx-auto px-4 py-16 text-center">
         <h1 className="text-2xl font-bold text-gray-900 mb-2">Service Not Found</h1>
         <p className="text-gray-500 mb-6">This service doesn't exist or has been removed.</p>
-        <Link href="/services" className="text-blue-600 font-medium hover:text-blue-700">
+        <Link href="/services" className="text-primary-600 font-medium hover:text-primary-700">
           Browse all services
         </Link>
       </main>
@@ -113,7 +113,7 @@ export default function ServiceDetailPage() {
         <div className="mx-6 sm:mx-8 -mt-5 grid grid-cols-2 gap-3 relative z-10">
           <div className="bg-white rounded-xl border border-muted-200 shadow-sm px-4 py-3 text-center">
             <p className="text-xs text-muted-500 font-medium uppercase tracking-wide">Price</p>
-            <p className="text-2xl font-bold text-muted-900 mt-0.5">${service.price}</p>
+            <p className="text-2xl font-bold text-muted-900 mt-0.5">₱{service.price.toLocaleString()}</p>
           </div>
           <div className="bg-white rounded-xl border border-muted-200 shadow-sm px-4 py-3 text-center">
             <p className="text-xs text-muted-500 font-medium uppercase tracking-wide">Duration</p>

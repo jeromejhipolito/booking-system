@@ -123,7 +123,7 @@ export default function ServiceStep() {
             onClick={() => handleServiceSelect(service)}
             className={`p-4 rounded-xl border-2 text-left transition-all ${
               selectedService?.id === service.id
-                ? 'border-blue-600 bg-primary-50 ring-1 ring-blue-600'
+                ? 'border-primary-600 bg-primary-50 ring-1 ring-primary-600'
                 : 'border-muted-200 hover:border-muted-300'
             }`}
           >
@@ -134,7 +134,7 @@ export default function ServiceStep() {
                 <p className="text-sm text-muted-500 mt-1">{service.provider.name}</p>
               </div>
               <div className="text-right">
-                <p className="font-bold text-muted-900">${service.price}</p>
+                <p className="font-bold text-muted-900">₱{service.price.toLocaleString()}</p>
                 <p className="text-xs text-muted-400">{service.duration}min</p>
               </div>
             </div>
@@ -157,7 +157,7 @@ export default function ServiceStep() {
                 onClick={() => handleStaffSelect(staff.id)}
                 className={`p-3 rounded-xl border-2 text-center transition-all ${
                   selectedStaff === staff.id
-                    ? 'border-blue-600 bg-primary-50'
+                    ? 'border-primary-600 bg-primary-50'
                     : 'border-muted-200 hover:border-muted-300'
                 }`}
               >

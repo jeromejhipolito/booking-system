@@ -297,7 +297,7 @@ export default function ServicesPage() {
                   <div className="mt-4 flex items-center justify-between pt-4 border-t border-muted-100">
                     <div>
                       <span className="text-xl font-bold text-muted-900">
-                        ${service.price}
+                        ₱{service.price.toLocaleString()}
                       </span>
                       <span className="text-sm text-muted-400">
                         {' '}

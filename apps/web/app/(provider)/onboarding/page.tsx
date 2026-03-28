@@ -5,13 +5,12 @@ import { useState } from 'react';
 const DAYS_OF_WEEK = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 const DURATION_OPTIONS = [15, 30, 45, 60, 90, 120];
 const TIMEZONE_OPTIONS = [
+  'Asia/Manila',
+  'Asia/Cebu',
   'America/New_York',
   'America/Chicago',
-  'America/Denver',
   'America/Los_Angeles',
-  'America/Phoenix',
   'Europe/London',
-  'Europe/Paris',
   'Asia/Tokyo',
 ];
 
@@ -23,7 +22,7 @@ export default function OnboardingPage() {
   const [businessName, setBusinessName] = useState('');
   const [businessDescription, setBusinessDescription] = useState('');
   const [address, setAddress] = useState('');
-  const [timezone, setTimezone] = useState('America/New_York');
+  const [timezone, setTimezone] = useState('Asia/Manila');
 
   // Step 2: Service info
   const [serviceName, setServiceName] = useState('');
@@ -253,7 +252,7 @@ export default function OnboardingPage() {
                       onClick={() => setDuration(d)}
                       className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                         duration === d
-                          ? 'bg-blue-600 text-white'
+                          ? 'bg-primary-600 text-white'
                           : 'bg-muted-100 text-muted-600 hover:bg-muted-200'
                       }`}
                     >
@@ -265,7 +264,7 @@ export default function OnboardingPage() {
 
               <div>
                 <label htmlFor="svc-price" className="block text-sm font-medium text-muted-700 mb-1.5">
-                  Price ($) *
+                  Price (₱) *
                 </label>
                 <input
                   id="svc-price"

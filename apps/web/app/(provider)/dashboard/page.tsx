@@ -61,7 +61,7 @@ export default function ProviderDashboardPage() {
 
   const stats = [
     { label: "Today's Bookings", value: String(todayBookings.length), change: `${allActive.length} total active`, color: 'text-primary-600' },
-    { label: 'Revenue (Total)', value: `$${totalRevenue.toFixed(0)}`, change: `${bookings.length} bookings`, color: 'text-success-600' },
+    { label: 'Revenue (Total)', value: `₱${totalRevenue.toLocaleString()}`, change: `${bookings.length} bookings`, color: 'text-success-600' },
     { label: 'Pending', value: String(pendingCount), change: pendingCount > 0 ? 'Needs action' : 'All clear', color: 'text-yellow-600' },
     { label: 'Total', value: String(bookings.length), change: 'All time', color: 'text-primary-600' },
   ];
@@ -208,7 +208,7 @@ export default function ProviderDashboardPage() {
                       </div>
                       <div>
                         <p className="text-xs text-muted-400">Price</p>
-                        <p className="text-sm font-medium text-muted-700">${booking.service?.price || '0'}</p>
+                        <p className="text-sm font-medium text-muted-700">₱{booking.service?.price || '0'}</p>
                       </div>
                       <div>
                         <p className="text-xs text-muted-400">Notes</p>

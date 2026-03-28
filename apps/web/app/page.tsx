@@ -20,45 +20,6 @@ const CATEGORY_ICONS: Record<string, string> = {
   'Pets': '🐾',
 };
 
-const STATS = [
-  { label: 'Active Providers', value: '2,500+' },
-  { label: 'Bookings Made', value: '150K+' },
-  { label: 'Happy Customers', value: '50K+' },
-  { label: 'Service Categories', value: '25+' },
-];
-
-const HOW_IT_WORKS = [
-  {
-    step: '1',
-    title: 'Browse Services',
-    description: 'Explore a wide range of services from top-rated providers in your area.',
-    icon: (
-      <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-      </svg>
-    ),
-  },
-  {
-    step: '2',
-    title: 'Pick a Time',
-    description: 'Choose a date and time that works for you. Real-time availability updates.',
-    icon: (
-      <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-      </svg>
-    ),
-  },
-  {
-    step: '3',
-    title: 'Book & Confirm',
-    description: 'Confirm your booking instantly. Get reminders and manage appointments easily.',
-    icon: (
-      <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-    ),
-  },
-];
 
 export default function HomePage() {
   const featuredServices = DEMO_MODE ? DEMO_SERVICES.slice(0, 6) : [];
@@ -71,19 +32,14 @@ export default function HomePage() {
         {/* Radial glow for depth */}
         <div className="absolute -top-24 -left-24 w-96 h-96 bg-primary-400/20 rounded-full blur-3xl" />
         <div className="absolute -bottom-24 right-0 w-[32rem] h-[32rem] bg-accent-500/10 rounded-full blur-3xl" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-28 lg:py-36">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
           <div className="max-w-3xl">
-            {/* Eyebrow label */}
-            <span className="inline-flex items-center gap-2 text-sm font-semibold text-accent-400 uppercase tracking-widest mb-6">
-              <span className="w-8 h-px bg-accent-400" />
-              Trusted by 50,000+ customers
-            </span>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1] tracking-tight">
-              Book appointments with the{' '}
-              <span className="text-accent-400">best professionals</span>
+              Book beauty &amp; wellness services in{' '}
+              <span className="text-accent-400">Metro Manila</span>
             </h1>
             <p className="mt-6 text-lg sm:text-xl text-primary-200 max-w-2xl leading-relaxed">
-              Discover and book top-rated service providers in your area. From beauty to home services, find the perfect appointment in seconds.
+              Discover and book top-rated service providers near you. From balayage to hilot massage, find the perfect appointment in seconds.
             </p>
             {/* Hero Search Bar */}
             <div className="mt-10 max-w-xl">
@@ -141,20 +97,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Stats */}
-      <section className="bg-gradient-to-b from-primary-900 to-primary-950 border-b border-primary-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {STATS.map((stat) => (
-              <div key={stat.label} className="text-center px-4 py-6 rounded-xl bg-white/5 border border-white/10">
-                <div className="text-4xl font-bold text-white">{stat.value}</div>
-                <div className="mt-2 text-sm font-medium text-primary-300 uppercase tracking-wide">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Featured Services */}
       {featuredServices.length > 0 && <section className="bg-white py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -202,7 +144,7 @@ export default function HomePage() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <span className="text-xl font-bold text-muted-900">${service.price}</span>
+                      <span className="text-xl font-bold text-muted-900">₱{service.price.toLocaleString()}</span>
                     </div>
                   </div>
                 </div>
@@ -220,59 +162,6 @@ export default function HomePage() {
         </div>
       </section>}
 
-      {/* How It Works */}
-      <section id="how-it-works" className="bg-muted-50 py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <span className="text-xs font-bold text-accent-500 uppercase tracking-widest">Simple process</span>
-            <h2 className="mt-2 text-3xl font-bold text-muted-900">How It Works</h2>
-            <p className="mt-3 text-muted-500 max-w-md mx-auto">Book your next appointment in three easy steps</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
-            {/* Connector line — desktop only */}
-            <div className="hidden md:block absolute top-10 left-[calc(16.67%+2rem)] right-[calc(16.67%+2rem)] h-px bg-gradient-to-r from-primary-200 via-primary-400 to-primary-200" />
-            {HOW_IT_WORKS.map((item) => (
-              <div key={item.step} className="relative text-center group">
-                {/* Step number watermark */}
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 text-7xl font-black text-primary-50 select-none pointer-events-none leading-none">
-                  {item.step}
-                </div>
-                <div className="relative mx-auto w-20 h-20 bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl flex items-center justify-center text-white mb-6 shadow-lg shadow-primary-500/25 group-hover:shadow-xl group-hover:shadow-primary-500/30 group-hover:scale-105 transition-all duration-200">
-                  {item.icon}
-                  <span className="absolute -top-2 -right-2 w-6 h-6 bg-accent-500 text-white text-xs font-bold rounded-full flex items-center justify-center shadow">
-                    {item.step}
-                  </span>
-                </div>
-                <h3 className="text-lg font-bold text-muted-900">{item.title}</h3>
-                <p className="mt-2 text-sm text-muted-500 leading-relaxed max-w-xs mx-auto">{item.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Provider CTA */}
-      <section className="relative bg-gradient-to-br from-muted-900 via-primary-950 to-muted-900 text-white py-24 overflow-hidden">
-        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-5" />
-        <div className="absolute top-0 right-0 w-[28rem] h-[28rem] bg-primary-600/10 rounded-full blur-3xl" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <span className="inline-block text-xs font-bold text-accent-400 uppercase tracking-widest mb-4">For Professionals</span>
-          <h2 className="text-3xl sm:text-4xl font-bold">Are you a service provider?</h2>
-          <p className="mt-4 text-muted-300 max-w-2xl mx-auto leading-relaxed">
-            Join thousands of providers who use BookIt to grow their business. Set up your profile, manage bookings, and reach new customers.
-          </p>
-          <Link
-            href="/register?role=provider"
-            className="mt-10 inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all duration-200 shadow-lg shadow-primary-900/40 hover:shadow-xl hover:-translate-y-0.5"
-          >
-            Get Started as a Provider
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-            </svg>
-          </Link>
-        </div>
-      </section>
-
       {/* Footer */}
       <footer className="bg-white border-t border-muted-200 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -281,7 +170,6 @@ export default function HomePage() {
               <h4 className="text-sm font-semibold text-muted-900 mb-4">Product</h4>
               <ul className="space-y-2">
                 <li><Link href="/services" className="text-sm text-muted-500 hover:text-muted-700">Browse Services</Link></li>
-                <li><Link href="/#how-it-works" className="text-sm text-muted-500 hover:text-muted-700">How It Works</Link></li>
                 <li><Link href="/register" className="text-sm text-muted-500 hover:text-muted-700">For Providers</Link></li>
               </ul>
             </div>

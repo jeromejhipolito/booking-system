@@ -185,7 +185,7 @@ export default function CancelBookingPage({ params }: { params: { id: string } }
             </div>
             <div className="flex justify-between">
               <span className="text-sm text-muted-500">Price</span>
-              <span className="text-sm font-medium text-muted-900">${price}</span>
+              <span className="text-sm font-medium text-muted-900">₱{price}</span>
             </div>
           </div>
         </div>

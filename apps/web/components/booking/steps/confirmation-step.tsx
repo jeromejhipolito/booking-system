@@ -153,7 +153,7 @@ export default function ConfirmationStep() {
           </div>
           <div className="flex justify-between pt-2 border-t border-primary-200">
             <span className="text-sm font-semibold text-muted-900">Total</span>
-            <span className="text-lg font-bold text-primary-700">${selectedService?.price}</span>
+            <span className="text-lg font-bold text-primary-700">₱{selectedService?.price.toLocaleString()}</span>
           </div>
         </div>
       </div>
@@ -209,7 +209,7 @@ export default function ConfirmationStep() {
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             onBlur={validatePhone}
-            placeholder="(555) 123-4567"
+            placeholder="+63 917 123 4567"
             className={`input-field ${phoneError ? 'border-danger-500' : ''}`}
           />
           {phoneError && <p className="mt-1 text-sm text-danger-600">{phoneError}</p>}

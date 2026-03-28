@@ -213,7 +213,7 @@ export default function CustomerDashboardPage() {
                           <span className={`px-2.5 py-0.5 text-xs font-medium rounded-full ${getStatusBadge(booking.status)}`}>
                             {booking.status}
                           </span>
-                          <span className="text-sm font-medium text-muted-700">${booking.service?.price || '0'}</span>
+                          <span className="text-sm font-medium text-muted-700">₱{booking.service?.price || '0'}</span>
                         </div>
                       </div>
                     </div>
