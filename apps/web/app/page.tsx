@@ -1,5 +1,7 @@
+'use client';
+
+import { useState } from 'react';
 import Link from 'next/link';
-import { MOCK_SERVICES } from '@/lib/mock-data';
 import { DEMO_MODE, DEMO_SERVICES } from '@/lib/demo-data';
 
 const CATEGORY_GRADIENTS: Record<string, string> = {
@@ -12,6 +14,7 @@ const CATEGORY_GRADIENTS: Record<string, string> = {
 };
 
 const CATEGORY_ICONS: Record<string, string> = {
+  'All': '✦',
   'Beauty': '✂',
   'Wellness': '◉',
   'Home Services': '⌂',
@@ -20,147 +23,168 @@ const CATEGORY_ICONS: Record<string, string> = {
   'Pets': '🐾',
 };
 
+const CATEGORIES = ['All', 'Beauty', 'Wellness', 'Home Services', 'Fitness', 'Consulting', 'Pets'];
 
 export default function HomePage() {
-  const featuredServices = DEMO_MODE ? DEMO_SERVICES.slice(0, 6) : [];
+  const allServices = DEMO_MODE ? DEMO_SERVICES : [];
+  const [search, setSearch] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+
+  const filteredServices = allServices.filter((service) => {
+    const matchesSearch =
+      search.trim() === '' ||
+      service.name.toLowerCase().includes(search.toLowerCase()) ||
+      service.provider.name.toLowerCase().includes(search.toLowerCase());
+    const matchesCategory =
+      selectedCategory === 'All' || service.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
 
   return (
-    <div className="min-h-screen">
-      {/* Hero */}
-      <section className="relative bg-gradient-to-br from-primary-600 via-primary-800 to-primary-900 text-white overflow-hidden">
-        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
-        {/* Radial glow for depth */}
-        <div className="absolute -top-24 -left-24 w-96 h-96 bg-primary-400/20 rounded-full blur-3xl" />
-        <div className="absolute -bottom-24 right-0 w-[32rem] h-[32rem] bg-accent-500/10 rounded-full blur-3xl" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
-          <div className="max-w-3xl">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1] tracking-tight">
+    <div className="min-h-screen bg-muted-50">
+      {/* Two-panel layout */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="lg:grid lg:grid-cols-[280px_1fr] lg:gap-8 pt-6 pb-12">
+
+          {/* Left Rail */}
+          <aside className="lg:sticky lg:top-16 lg:h-[calc(100vh-4rem)] lg:overflow-y-auto pb-6 lg:pb-0">
+            <h1 className="text-2xl sm:text-3xl font-bold text-muted-900 leading-tight">
               Book beauty &amp; wellness services in{' '}
-              <span className="text-accent-400">Metro Manila</span>
+              <span className="text-primary-600">Metro Manila</span>
             </h1>
-            <p className="mt-6 text-lg sm:text-xl text-primary-200 max-w-2xl leading-relaxed">
-              Discover and book top-rated service providers near you. From balayage to hilot massage, find the perfect appointment in seconds.
+            <p className="mt-3 text-sm text-muted-500 leading-relaxed">
+              From balayage to hilot massage, find the perfect appointment in seconds.
             </p>
-            {/* Hero Search Bar */}
-            <div className="mt-10 max-w-xl">
-              <form action="/services" className="relative">
-                <div className="flex items-center bg-white rounded-xl shadow-lg shadow-primary-900/30 overflow-hidden">
-                  <div className="pl-4">
-                    <svg className="w-5 h-5 text-muted-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                  </div>
-                  <input
-                    name="q"
-                    type="text"
-                    placeholder="Search haircuts, massage, cleaning..."
-                    className="flex-1 px-3 py-4 text-muted-900 placeholder-muted-400 focus:outline-none text-base"
-                  />
-                  <button type="submit" className="px-6 py-4 bg-primary-600 text-white font-semibold hover:bg-primary-700 transition-colors">
-                    Search
-                  </button>
-                </div>
-              </form>
-              {/* Quick category chips */}
-              <div className="mt-4 flex flex-wrap gap-2">
-                <span className="text-sm text-primary-300">Popular:</span>
-                {['Beauty', 'Wellness', 'Fitness', 'Home Services'].map((cat) => (
-                  <Link
-                    key={cat}
-                    href={`/services?category=${cat}`}
-                    className="text-sm px-3 py-1 rounded-full bg-white/10 text-white/80 hover:bg-white/20 hover:text-white transition-colors border border-white/10"
-                  >
-                    {CATEGORY_ICONS[cat]} {cat}
-                  </Link>
-                ))}
-              </div>
+
+            {/* Search */}
+            <div className="mt-5 relative">
+              <svg
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-400"
+                fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input
+                type="text"
+                placeholder="Search services..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-muted-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm bg-white"
+              />
             </div>
 
-            <div className="mt-6 flex flex-col sm:flex-row gap-4">
-              <Link
-                href="/services"
-                className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-white text-primary-700 font-semibold rounded-xl hover:bg-primary-50 transition-all duration-200 shadow-lg shadow-primary-900/30 hover:shadow-xl hover:-translate-y-0.5"
-              >
-                Browse All Services
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </Link>
+            {/* Category list */}
+            <nav className="mt-5 space-y-1">
+              {CATEGORIES.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    selectedCategory === cat
+                      ? 'bg-primary-50 text-primary-700'
+                      : 'text-muted-600 hover:bg-muted-100 hover:text-muted-900'
+                  }`}
+                >
+                  <span className="mr-2">{CATEGORY_ICONS[cat]}</span>
+                  {cat}
+                </button>
+              ))}
+            </nav>
+
+            {/* CTA */}
+            <div className="mt-6 hidden lg:block">
               <Link
                 href="/register"
-                className="inline-flex items-center justify-center px-8 py-3.5 border-2 border-white/30 text-white font-semibold rounded-xl hover:bg-white/10 hover:border-white/60 transition-all duration-200"
+                className="block text-center text-sm font-medium text-primary-600 hover:text-primary-700 py-2 px-4 rounded-lg border border-primary-200 hover:bg-primary-50 transition-colors"
               >
                 List Your Business
               </Link>
             </div>
-          </div>
-        </div>
-      </section>
+          </aside>
 
-      {/* Featured Services */}
-      {featuredServices.length > 0 && <section className="bg-white py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
-            <span className="text-xs font-bold text-accent-500 uppercase tracking-widest">Hand-picked for you</span>
-            <h2 className="mt-2 text-3xl font-bold text-muted-900">Featured Services</h2>
-            <p className="mt-3 text-muted-500 max-w-2xl mx-auto">
-              Popular services from our top-rated providers
+          {/* Right Column — Service Feed */}
+          <main>
+            {/* Category horizontal strip (mobile supplement) */}
+            <div className="flex gap-2 overflow-x-auto pb-3 mb-4 lg:hidden">
+              {CATEGORIES.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                    selectedCategory === cat
+                      ? 'bg-primary-600 text-white'
+                      : 'bg-muted-200 text-muted-600'
+                  }`}
+                >
+                  {CATEGORY_ICONS[cat]} {cat}
+                </button>
+              ))}
+            </div>
+
+            <p className="text-sm text-muted-500 mb-4">
+              {filteredServices.length} service{filteredServices.length !== 1 ? 's' : ''} available
             </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {featuredServices.map((service) => (
-              <Link key={service.id} href={`/services/${service.id}`} className="card-interactive overflow-hidden group flex flex-col">
-                {/* Service image or gradient placeholder */}
-                <div className={`relative h-44 ${CATEGORY_GRADIENTS[service.category] || 'bg-gradient-to-br from-muted-200 to-muted-300'}`}>
-                  {service.image && <img src={service.image} alt={service.name} className="absolute inset-0 w-full h-full object-cover" />}
-                  <div className="absolute inset-0 bg-black/5" />
-                  <div className="absolute top-3 left-3">
-                    <span className="px-2.5 py-1 text-xs font-semibold bg-white/90 backdrop-blur-sm text-muted-700 rounded-full shadow-sm">
-                      {CATEGORY_ICONS[service.category] || '✦'} {service.category}
-                    </span>
-                  </div>
-                  <div className="absolute bottom-3 right-3 text-white/90 text-xs font-medium bg-black/30 backdrop-blur-sm px-2 py-1 rounded-full">
-                    {service.duration}min
-                  </div>
-                </div>
 
-                {/* Content */}
-                <div className="p-5 flex flex-col flex-1">
-                  <h3 className="text-lg font-semibold text-muted-900 group-hover:text-primary-600 transition-colors leading-snug">{service.name}</h3>
-                  <p className="mt-1.5 text-sm text-muted-500 line-clamp-2 leading-relaxed flex-1">{service.description}</p>
+            {/* Service feed — horizontal cards */}
+            <div className="space-y-3">
+              {filteredServices.map((service) => (
+                <Link
+                  key={service.id}
+                  href={`/services/${service.id}`}
+                  className="flex bg-white rounded-xl border border-muted-200 overflow-hidden hover:border-l-4 hover:border-l-primary-500 transition-all group"
+                >
+                  {/* Gradient thumbnail */}
+                  <div className={`w-[120px] h-[90px] flex-shrink-0 ${CATEGORY_GRADIENTS[service.category] || 'bg-gradient-to-br from-muted-200 to-muted-300'} flex items-center justify-center`}>
+                    <span className="text-2xl opacity-60">{CATEGORY_ICONS[service.category] || '✦'}</span>
+                  </div>
 
-                  <div className="mt-4 flex items-center justify-between">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white font-bold text-xs shadow-sm shrink-0">
-                        {service.provider.name.charAt(0)}
-                      </div>
+                  {/* Content */}
+                  <div className="flex-1 px-4 py-3 min-w-0 flex flex-col justify-between">
+                    <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <p className="text-sm font-medium text-muted-900 truncate">{service.provider.name}</p>
-                        <div className="flex items-center gap-1 text-xs text-muted-500">
-                          <span className="text-yellow-400">★</span>
-                          <span className="font-medium text-muted-700">{service.provider.rating}</span>
-                          <span>({service.provider.reviewCount})</span>
-                        </div>
+                        <h3 className="text-sm font-semibold text-muted-900 group-hover:text-primary-600 transition-colors truncate">
+                          {service.name}
+                        </h3>
+                        <p className="text-xs text-muted-500 truncate">
+                          {service.provider.name} · {service.provider.address}
+                        </p>
                       </div>
+                      <span className="text-sm font-bold text-muted-900 whitespace-nowrap">
+                        ₱{service.price.toLocaleString()}
+                      </span>
                     </div>
-                    <div className="text-right">
-                      <span className="text-xl font-bold text-muted-900">₱{service.price.toLocaleString()}</span>
+                    <div className="flex items-center justify-between mt-1.5">
+                      <div className="flex items-center gap-2 text-xs text-muted-500">
+                        <span className="text-yellow-400">★</span>
+                        <span className="font-medium text-muted-700">{service.provider.rating}</span>
+                        <span>({service.provider.reviewCount})</span>
+                        <span className="text-muted-300">·</span>
+                        <span>{service.duration}min</span>
+                      </div>
+                      <span className="text-xs font-medium text-primary-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                        Book →
+                      </span>
                     </div>
                   </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-          <div className="mt-12 text-center">
-            <Link href="/services" className="inline-flex items-center gap-2 btn-primary shadow-md shadow-primary-600/20 hover:shadow-lg hover:shadow-primary-600/25 hover:-translate-y-0.5 transition-all duration-200">
-              View All Services
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
-            </Link>
-          </div>
+                </Link>
+              ))}
+            </div>
+
+            {filteredServices.length === 0 && (
+              <div className="text-center py-16">
+                <p className="text-muted-500 font-medium">No services found</p>
+                <p className="text-sm text-muted-400 mt-1">Try a different search or category</p>
+                <button
+                  onClick={() => { setSearch(''); setSelectedCategory('All'); }}
+                  className="mt-4 text-sm text-primary-600 font-medium hover:text-primary-700"
+                >
+                  Clear filters
+                </button>
+              </div>
+            )}
+          </main>
         </div>
-      </section>}
+      </div>
 
       {/* Footer */}
       <footer className="bg-white border-t border-muted-200 py-12">

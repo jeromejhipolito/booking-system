@@ -29,21 +29,12 @@ const CATEGORY_ACTIVE_COLORS: Record<string, string> = {
 
 function SkeletonCard() {
   return (
-    <div className="card p-6 animate-pulse">
-      <div className="h-4 bg-muted-200 rounded w-20 mb-3" />
-      <div className="h-5 bg-muted-200 rounded w-3/4 mb-2" />
-      <div className="h-4 bg-muted-200 rounded w-full mb-1" />
-      <div className="h-4 bg-muted-200 rounded w-2/3 mb-4" />
-      <div className="flex items-center space-x-3 mb-4">
-        <div className="w-8 h-8 bg-muted-200 rounded-full" />
-        <div>
-          <div className="h-4 bg-muted-200 rounded w-24 mb-1" />
-          <div className="h-3 bg-muted-200 rounded w-16" />
-        </div>
-      </div>
-      <div className="pt-4 border-t border-muted-100 flex justify-between">
-        <div className="h-5 bg-muted-200 rounded w-16" />
-        <div className="h-5 bg-muted-200 rounded w-20" />
+    <div className="flex bg-white rounded-xl border border-muted-200 overflow-hidden animate-pulse">
+      <div className="w-[120px] h-[90px] flex-shrink-0 bg-muted-200" />
+      <div className="flex-1 px-4 py-3">
+        <div className="h-4 bg-muted-200 rounded w-3/4 mb-2" />
+        <div className="h-3 bg-muted-200 rounded w-1/2 mb-3" />
+        <div className="h-3 bg-muted-200 rounded w-1/3" />
       </div>
     </div>
   );
@@ -202,7 +193,7 @@ export default function ServicesPage() {
 
         {/* Loading State */}
         {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="space-y-3">
             {Array.from({ length: 6 }).map((_, i) => (
               <SkeletonCard key={i} />
             ))}
@@ -238,81 +229,54 @@ export default function ServicesPage() {
             </button>
           </div>
         ) : (
-          /* Service Grid */
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          /* Service List — Horizontal Cards */
+          <div className="space-y-3">
             {filteredServices.map((service) => (
-              <div
+              <Link
                 key={service.id}
-                className="card-interactive overflow-hidden group flex flex-col"
+                href={`/services/${service.id}`}
+                className="flex bg-white rounded-xl border border-muted-200 overflow-hidden hover:border-l-4 hover:border-l-primary-500 transition-all group"
               >
-                {/* Image placeholder */}
-                <Link href={`/services/${service.id}`} className="block">
-                  <div className={`relative h-40 ${CATEGORY_GRADIENTS[service.category] || 'bg-gradient-to-br from-muted-200 to-muted-300'}`}>
-                    {service.image && <img src={service.image} alt={service.name} className="absolute inset-0 w-full h-full object-cover" onError={(e: any) => { e.target.style.display = 'none'; }} />}
-                    <div className="absolute inset-0 bg-black/5" />
-                    <div className="absolute top-3 left-3">
-                      <span className="px-2.5 py-1 text-xs font-semibold bg-white/90 backdrop-blur-sm text-muted-700 rounded-full shadow-sm">
-                        {CATEGORY_ICONS[service.category] || '✦'} {service.category}
-                      </span>
+                {/* Gradient thumbnail */}
+                <div className={`w-[120px] h-[90px] flex-shrink-0 ${CATEGORY_GRADIENTS[service.category] || 'bg-gradient-to-br from-muted-200 to-muted-300'} flex items-center justify-center`}>
+                  <span className="text-2xl opacity-60">{CATEGORY_ICONS[service.category] || '✦'}</span>
+                </div>
+
+                {/* Content */}
+                <div className="flex-1 px-4 py-3 min-w-0 flex flex-col justify-between">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <h3 className="text-sm font-semibold text-muted-900 group-hover:text-primary-600 transition-colors truncate">
+                        {service.name}
+                      </h3>
+                      <p className="text-xs text-muted-500 truncate">
+                        {service.provider.name}
+                        {service.provider.address && ` · ${service.provider.address}`}
+                      </p>
                     </div>
-                    <div className="absolute bottom-3 left-3 flex items-center gap-1.5 text-xs font-medium text-white bg-black/30 backdrop-blur-sm px-2 py-1 rounded-full">
-                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      Next: {service.nextAvailable}
+                    <div className="text-right flex-shrink-0">
+                      <span className="text-sm font-bold text-muted-900">₱{service.price.toLocaleString()}</span>
+                      <p className="text-xs text-muted-400">{service.duration}min</p>
                     </div>
                   </div>
-                </Link>
-
-                <div className="p-5 flex flex-col flex-1">
-                  <Link href={`/services/${service.id}`}>
-                    <h3 className="text-lg font-semibold text-muted-900 group-hover:text-primary-600 transition-colors leading-snug">
-                      {service.name}
-                    </h3>
-                  </Link>
-                  <p className="mt-1.5 text-sm text-muted-500 line-clamp-2 leading-relaxed flex-1">
-                    {service.description}
-                  </p>
-
-                  <div className="mt-4 flex items-center gap-2.5">
-                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white font-bold text-xs shadow-sm shrink-0">
-                      {service.provider.name.charAt(0)}
+                  <div className="flex items-center justify-between mt-1.5">
+                    <div className="flex items-center gap-2 text-xs text-muted-500">
+                      <span className="text-yellow-400">★</span>
+                      <span className="font-medium text-muted-700">{service.provider.rating}</span>
+                      <span>({service.provider.reviewCount} reviews)</span>
+                      {service.nextAvailable && (
+                        <>
+                          <span className="text-muted-300">·</span>
+                          <span className="text-success-600">Next: {service.nextAvailable}</span>
+                        </>
+                      )}
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-muted-900 truncate">{service.provider.name}</p>
-                      <div className="flex items-center gap-1 text-xs text-muted-500">
-                        <span className="text-yellow-400">★</span>
-                        <span className="font-medium text-muted-700">{service.provider.rating}</span>
-                        <span>({service.provider.reviewCount})</span>
-                        {service.provider.address && (
-                          <>
-                            <span className="text-muted-300">·</span>
-                            <span className="truncate">{service.provider.address}</span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 flex items-center justify-between pt-4 border-t border-muted-100">
-                    <div>
-                      <span className="text-xl font-bold text-muted-900">
-                        ₱{service.price.toLocaleString()}
-                      </span>
-                      <span className="text-sm text-muted-400">
-                        {' '}
-                        / {service.duration}min
-                      </span>
-                    </div>
-                    <Link
-                      href={`/book?serviceId=${service.id}`}
-                      className="btn-primary text-sm !py-2 !px-4 shadow-sm shadow-primary-600/20 hover:shadow-md hover:-translate-y-px transition-all duration-150"
-                    >
-                      Book Now
-                    </Link>
+                    <span className="text-xs font-medium text-primary-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                      Book →
+                    </span>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}

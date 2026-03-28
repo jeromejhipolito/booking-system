@@ -1,16 +1,33 @@
 'use client';
 
+import { useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
-import BookingWizard from '@/components/booking/booking-wizard';
+
+function BookRedirect() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const serviceId = searchParams.get('serviceId') || searchParams.get('service');
+
+  useEffect(() => {
+    if (serviceId) {
+      router.replace(`/services/${serviceId}#book`);
+    } else {
+      router.replace('/services');
+    }
+  }, [serviceId, router]);
+
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="animate-spin h-8 w-8 border-4 border-primary-600 border-t-transparent rounded-full" />
+    </div>
+  );
+}
 
 export default function BookPage() {
   return (
-    <div className="min-h-screen bg-muted-50 py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <Suspense fallback={<div className="text-center py-12"><div className="animate-spin h-8 w-8 border-4 border-primary-600 border-t-transparent rounded-full mx-auto" /></div>}>
-          <BookingWizard />
-        </Suspense>
-      </div>
-    </div>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin h-8 w-8 border-4 border-primary-600 border-t-transparent rounded-full" /></div>}>
+      <BookRedirect />
+    </Suspense>
   );
 }
