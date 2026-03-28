@@ -17,8 +17,18 @@ export default function ConfirmationStep() {
   const [nameError, setNameError] = useState('');
   const [emailError, setEmailError] = useState('');
   const [phoneError, setPhoneError] = useState('');
+  const [bookingSource, setBookingSource] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
+
+  const BOOKING_SOURCES = [
+    'Online search',
+    'Instagram',
+    'Facebook',
+    'Messenger',
+    'Friend referral',
+    'Walk-in',
+  ];
 
   const validateName = () => {
     if (!name.trim()) {
@@ -227,6 +237,29 @@ export default function ConfirmationStep() {
             rows={3}
             className="input-field resize-none"
           />
+        </div>
+
+        {/* Booking Source (optional) */}
+        <div>
+          <label className="block text-sm font-medium text-muted-700 mb-1.5">
+            How did you find this provider? (optional)
+          </label>
+          <div className="flex flex-wrap gap-2">
+            {BOOKING_SOURCES.map((source) => (
+              <button
+                key={source}
+                type="button"
+                onClick={() => setBookingSource(bookingSource === source ? '' : source)}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                  bookingSource === source
+                    ? 'bg-primary-600 text-white'
+                    : 'bg-muted-100 text-muted-600 hover:bg-muted-200'
+                }`}
+              >
+                {source}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Navigation */}

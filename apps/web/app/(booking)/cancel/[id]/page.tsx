@@ -26,6 +26,15 @@ export default function CancelBookingPage({ params }: { params: { id: string } }
   const [isCancelled, setIsCancelled] = useState(false);
   const [booking, setBooking] = useState<BookingDetails | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [cancelReason, setCancelReason] = useState('');
+
+  const CANCEL_REASONS = [
+    'Schedule conflict',
+    'Found a cheaper option',
+    'Provider unresponsive',
+    'Personal emergency',
+    'Other',
+  ];
 
   // Fetch booking details
   useEffect(() => {
@@ -55,7 +64,7 @@ export default function CancelBookingPage({ params }: { params: { id: string } }
     setIsSubmitting(true);
     setError(null);
     try {
-      const body: any = { reason: 'Cancelled by customer' };
+      const body: any = { reason: cancelReason || 'Cancelled by customer' };
       if (token) {
         body.token = token;
       }
@@ -207,6 +216,26 @@ export default function CancelBookingPage({ params }: { params: { id: string } }
           </ul>
         </div>
 
+        {/* Cancellation Reason */}
+        <div className="card p-6 mb-6">
+          <h3 className="text-sm font-semibold text-muted-700 mb-3">Why are you cancelling? *</h3>
+          <div className="space-y-2">
+            {CANCEL_REASONS.map((reason) => (
+              <label key={reason} className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="radio"
+                  name="cancelReason"
+                  value={reason}
+                  checked={cancelReason === reason}
+                  onChange={(e) => setCancelReason(e.target.value)}
+                  className="w-4 h-4 text-primary-600 border-muted-300 focus:ring-primary-500"
+                />
+                <span className="text-sm text-muted-700">{reason}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+
         {/* Actions */}
         <div className="flex gap-3">
           <Link href="/" className="flex-1 btn-secondary text-center">
@@ -214,7 +243,7 @@ export default function CancelBookingPage({ params }: { params: { id: string } }
           </Link>
           <button
             onClick={handleCancel}
-            disabled={isSubmitting}
+            disabled={isSubmitting || !cancelReason}
             className="flex-1 bg-danger-600 hover:bg-danger-700 text-white font-medium py-2.5 px-5 rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center"
           >
             {isSubmitting ? (

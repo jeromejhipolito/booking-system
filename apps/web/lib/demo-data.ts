@@ -46,6 +46,7 @@ export interface DemoService {
   provider: {
     id: string;
     name: string;
+    slug: string;
     avatar: string;
     rating: number;
     reviewCount: number;
@@ -63,7 +64,7 @@ export const DEMO_SERVICES: DemoService[] = [
     price: 2500,
     duration: 120,
     image: '/demo/beauty.jpg',
-    provider: { id: 'demo-prov-001', name: 'Glow Up Studio', avatar: '/demo/avatar-1.jpg', rating: 4.9, reviewCount: 87, address: '123 Jupiter St, Makati' },
+    provider: { id: 'demo-prov-001', name: 'Glow Up Studio', slug: 'glow-up-studio', avatar: '/demo/avatar-1.jpg', rating: 4.9, reviewCount: 87, address: '123 Jupiter St, Makati' },
     nextAvailable: 'Today, 3:00 PM',
   },
   {
@@ -74,7 +75,7 @@ export const DEMO_SERVICES: DemoService[] = [
     price: 800,
     duration: 60,
     image: '/demo/wellness.jpg',
-    provider: { id: 'demo-prov-002', name: 'Healing Hands Wellness', avatar: '/demo/avatar-2.jpg', rating: 4.8, reviewCount: 95, address: 'BGC Stopover, Taguig' },
+    provider: { id: 'demo-prov-002', name: 'Healing Hands Wellness', slug: 'healing-hands-wellness', avatar: '/demo/avatar-2.jpg', rating: 4.8, reviewCount: 95, address: 'BGC Stopover, Taguig' },
     nextAvailable: 'Tomorrow, 10:00 AM',
   },
   {
@@ -85,7 +86,7 @@ export const DEMO_SERVICES: DemoService[] = [
     price: 1500,
     duration: 90,
     image: '/demo/home-services.jpg',
-    provider: { id: 'demo-prov-003', name: 'BreezePro Services', avatar: '/demo/avatar-3.jpg', rating: 4.7, reviewCount: 203, address: 'Shaw Blvd, Mandaluyong' },
+    provider: { id: 'demo-prov-003', name: 'BreezePro Services', slug: 'breezepro-services', avatar: '/demo/avatar-3.jpg', rating: 4.7, reviewCount: 203, address: 'Shaw Blvd, Mandaluyong' },
     nextAvailable: 'Today, 9:00 AM',
   },
   {
@@ -96,7 +97,7 @@ export const DEMO_SERVICES: DemoService[] = [
     price: 1800,
     duration: 90,
     image: '/demo/facial.jpg',
-    provider: { id: 'demo-prov-004', name: 'Flawless BGC', avatar: '/demo/avatar-1.jpg', rating: 4.9, reviewCount: 76, address: 'High Street South, Taguig' },
+    provider: { id: 'demo-prov-004', name: 'Flawless BGC', slug: 'flawless-bgc', avatar: '/demo/avatar-1.jpg', rating: 4.9, reviewCount: 76, address: 'High Street South, Taguig' },
     nextAvailable: 'Today, 2:00 PM',
   },
   {
@@ -107,7 +108,7 @@ export const DEMO_SERVICES: DemoService[] = [
     price: 1000,
     duration: 60,
     image: '/demo/fitness.jpg',
-    provider: { id: 'demo-prov-005', name: 'FitZone Eastwood', avatar: '/demo/avatar-2.jpg', rating: 4.8, reviewCount: 64, address: 'Eastwood City, Quezon City' },
+    provider: { id: 'demo-prov-005', name: 'FitZone Eastwood', slug: 'fitzone-eastwood', avatar: '/demo/avatar-2.jpg', rating: 4.8, reviewCount: 64, address: 'Eastwood City, Quezon City' },
     nextAvailable: 'Today, 6:00 PM',
   },
   {
@@ -118,7 +119,7 @@ export const DEMO_SERVICES: DemoService[] = [
     price: 900,
     duration: 90,
     image: '/demo/pets.jpg',
-    provider: { id: 'demo-prov-006', name: 'Paw Spa', avatar: '/demo/avatar-3.jpg', rating: 4.8, reviewCount: 167, address: 'Katipunan Ave, Quezon City' },
+    provider: { id: 'demo-prov-006', name: 'Paw Spa', slug: 'paw-spa', avatar: '/demo/avatar-3.jpg', rating: 4.8, reviewCount: 167, address: 'Katipunan Ave, Quezon City' },
     nextAvailable: 'Today, 11:00 AM',
   },
   {
@@ -129,7 +130,7 @@ export const DEMO_SERVICES: DemoService[] = [
     price: 3500,
     duration: 240,
     image: '/demo/home-services.jpg',
-    provider: { id: 'demo-prov-007', name: 'Sparkle PH', avatar: '/demo/avatar-1.jpg', rating: 4.7, reviewCount: 189, address: 'Ortigas Center, Pasig' },
+    provider: { id: 'demo-prov-007', name: 'Sparkle PH', slug: 'sparkle-ph', avatar: '/demo/avatar-1.jpg', rating: 4.7, reviewCount: 189, address: 'Ortigas Center, Pasig' },
     nextAvailable: 'Tomorrow, 8:00 AM',
   },
   {
@@ -140,7 +141,7 @@ export const DEMO_SERVICES: DemoService[] = [
     price: 600,
     duration: 45,
     image: '/demo/beauty.jpg',
-    provider: { id: 'demo-prov-001', name: 'Glow Up Studio', avatar: '/demo/avatar-1.jpg', rating: 4.9, reviewCount: 87, address: '123 Jupiter St, Makati' },
+    provider: { id: 'demo-prov-001', name: 'Glow Up Studio', slug: 'glow-up-studio', avatar: '/demo/avatar-1.jpg', rating: 4.9, reviewCount: 87, address: '123 Jupiter St, Makati' },
     nextAvailable: 'Tomorrow, 11:00 AM',
   },
   {
@@ -151,7 +152,7 @@ export const DEMO_SERVICES: DemoService[] = [
     price: 5000,
     duration: 90,
     image: '/demo/consulting.jpg',
-    provider: { id: 'demo-prov-008', name: 'Launchpad Advisors', avatar: '/demo/avatar-2.jpg', rating: 4.6, reviewCount: 42, address: 'Ayala Ave, Makati' },
+    provider: { id: 'demo-prov-008', name: 'Launchpad Advisors', slug: 'launchpad-advisors', avatar: '/demo/avatar-2.jpg', rating: 4.6, reviewCount: 42, address: 'Ayala Ave, Makati' },
     nextAvailable: 'Tomorrow, 2:00 PM',
   },
 ];

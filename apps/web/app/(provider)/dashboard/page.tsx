@@ -58,12 +58,18 @@ export default function ProviderDashboardPage() {
     .reduce((sum, b) => sum + parseFloat(b.service?.price || '0'), 0);
 
   const pendingCount = bookings.filter((b) => b.status === 'pending').length;
+  const noShowCount = bookings.filter((b) => b.status === 'no_show').length;
+  const completedCount = bookings.filter((b) => b.status === 'completed').length;
+  const noShowRate = completedCount + noShowCount > 0
+    ? Math.round((noShowCount / (completedCount + noShowCount)) * 100)
+    : 0;
+  const cancelledBookings = bookings.filter((b) => b.status === 'cancelled');
 
   const stats = [
     { label: "Today's Bookings", value: String(todayBookings.length), change: `${allActive.length} total active`, color: 'text-primary-600' },
     { label: 'Revenue (Total)', value: `₱${totalRevenue.toLocaleString()}`, change: `${bookings.length} bookings`, color: 'text-success-600' },
     { label: 'Pending', value: String(pendingCount), change: pendingCount > 0 ? 'Needs action' : 'All clear', color: 'text-yellow-600' },
-    { label: 'Total', value: String(bookings.length), change: 'All time', color: 'text-primary-600' },
+    { label: 'No-Show Rate', value: `${noShowRate}%`, change: `${noShowCount} no-shows`, color: noShowRate > 10 ? 'text-danger-600' : 'text-primary-600' },
   ];
 
   const handleRowClick = (bookingId: string) => {
@@ -214,6 +220,29 @@ export default function ProviderDashboardPage() {
                         <p className="text-xs text-muted-400">Notes</p>
                         <p className="text-sm text-muted-700">{booking.notes || 'None'}</p>
                       </div>
+                      {/* No-Show button for past confirmed bookings */}
+                      {booking.status === 'confirmed' && new Date(booking.startTime) < new Date() && (
+                        <div className="col-span-2 pt-2">
+                          <button
+                            onClick={async () => {
+                              try {
+                                await apiClient(`/bookings/${booking.id}`, {
+                                  method: 'PATCH',
+                                  body: JSON.stringify({ status: 'no_show' }),
+                                });
+                                setBookings((prev) =>
+                                  prev.map((b) => b.id === booking.id ? { ...b, status: 'no_show' } : b),
+                                );
+                              } catch (err: any) {
+                                console.warn('Failed to mark no-show:', err.message);
+                              }
+                            }}
+                            className="text-xs font-medium text-danger-600 hover:text-danger-700 px-3 py-1.5 rounded-lg hover:bg-danger-50 border border-danger-200 transition-colors"
+                          >
+                            Mark No-Show
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
@@ -222,6 +251,38 @@ export default function ProviderDashboardPage() {
           </div>
         )}
       </div>
+
+      {/* Cancellation Insights */}
+      {cancelledBookings.length > 0 && (
+        <div className="card mt-6">
+          <div className="px-6 py-4 border-b border-muted-200">
+            <h2 className="text-lg font-semibold text-muted-900">Cancellation Insights</h2>
+          </div>
+          <div className="p-6">
+            <p className="text-sm text-muted-500 mb-3">
+              {cancelledBookings.length} cancellation{cancelledBookings.length !== 1 ? 's' : ''} total
+            </p>
+            <div className="space-y-2">
+              {['Schedule conflict', 'Found a cheaper option', 'Provider unresponsive', 'Personal emergency', 'Other'].map((reason) => {
+                const count = cancelledBookings.filter((b) => b.notes?.includes(reason)).length;
+                if (count === 0) return null;
+                const pct = Math.round((count / cancelledBookings.length) * 100);
+                return (
+                  <div key={reason} className="flex items-center justify-between text-sm">
+                    <span className="text-muted-700">{reason}</span>
+                    <div className="flex items-center gap-2">
+                      <div className="w-24 h-2 bg-muted-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-primary-500 rounded-full" style={{ width: `${pct}%` }} />
+                      </div>
+                      <span className="text-xs text-muted-500 w-8 text-right">{pct}%</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
