@@ -4,7 +4,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { CqrsModule } from '@nestjs/cqrs';
 import { ScheduleModule } from '@nestjs/schedule';
+import { LoggerModule } from 'nestjs-pino';
 import { APP_GUARD } from '@nestjs/core';
+import { randomUUID } from 'crypto';
 import { UserModule } from './modules/user/user.module';
 import { ProviderModule } from './modules/provider/provider.module';
 import { ServiceModule } from './modules/service/service.module';
@@ -21,6 +23,26 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env', '../../.env'],
+    }),
+    LoggerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        pinoHttp: {
+          genReqId: (req: any) => req.headers['x-request-id'] || randomUUID(),
+          transport: config.get('NODE_ENV') !== 'production'
+            ? { target: 'pino-pretty', options: { colorize: true, singleLine: true } }
+            : undefined,
+          customProps: () => ({ service: 'booking-api' }),
+          serializers: {
+            req: (req: any) => ({ method: req.method, url: req.url, id: req.id }),
+            res: (res: any) => ({ statusCode: res.statusCode }),
+          },
+          autoLogging: {
+            ignore: (req: any) => req.url === '/v1/health',
+          },
+        },
+      }),
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
