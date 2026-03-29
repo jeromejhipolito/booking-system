@@ -1,0 +1,15 @@
+{
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "rootDir": "src",
+  "testRegex": ".*\\.spec\\.ts$",
+  "transform": {
+    "^.+\\.ts$": "ts-jest"
+  },
+  "testEnvironment": "node",
+  "moduleNameMapper": {
+    "^@booking/shared-types(.*)$": "<rootDir>/../../../packages/shared-types/src$1",
+    "^@booking/shared-schemas(.*)$": "<rootDir>/../../../packages/shared-schemas/src$1",
+    "^@booking/shared-constants(.*)$": "<rootDir>/../../../packages/shared-constants/src$1",
+    "^@booking/shared-utils(.*)$": "<rootDir>/../../../packages/shared-utils/src$1"
+  }
+}
