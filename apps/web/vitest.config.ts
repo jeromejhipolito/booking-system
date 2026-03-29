@@ -13,6 +13,10 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, '.'),
+      '@booking/shared-schemas': path.resolve(__dirname, '../../packages/shared-schemas/src'),
+      '@booking/shared-types': path.resolve(__dirname, '../../packages/shared-types/src'),
+      '@booking/shared-constants': path.resolve(__dirname, '../../packages/shared-constants/src'),
+      '@booking/shared-utils': path.resolve(__dirname, '../../packages/shared-utils/src'),
     },
   },
 });

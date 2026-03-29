@@ -90,4 +90,50 @@ describe('Booking Store', () => {
     useBookingStore.getState().setCurrentStep(3);
     expect(useBookingStore.getState().currentStep).toBe(3);
   });
+
+  it('setSelectedDate clears selectedSlot', () => {
+    useBookingStore.getState().setSelectedDate('2026-04-01');
+    useBookingStore.getState().setSelectedSlot(mockSlot);
+    expect(useBookingStore.getState().selectedSlot).not.toBeNull();
+
+    useBookingStore.getState().setSelectedDate('2026-04-02');
+    expect(useBookingStore.getState().selectedSlot).toBeNull();
+  });
+
+  it('nextStep caps at 3', () => {
+    useBookingStore.getState().setCurrentStep(3);
+    useBookingStore.getState().nextStep();
+    expect(useBookingStore.getState().currentStep).toBe(3);
+  });
+
+  it('prevStep caps at 1', () => {
+    useBookingStore.getState().setCurrentStep(1);
+    useBookingStore.getState().prevStep();
+    expect(useBookingStore.getState().currentStep).toBe(1);
+  });
+
+  it('setCustomerInfo merges partial updates', () => {
+    useBookingStore.getState().setCustomerInfo({ name: 'John' });
+    useBookingStore.getState().setCustomerInfo({ email: 'john@test.com' });
+
+    const info = useBookingStore.getState().customerInfo;
+    expect(info.name).toBe('John');
+    expect(info.email).toBe('john@test.com');
+  });
+
+  it('full wizard flow preserves all data', () => {
+    const store = useBookingStore.getState();
+    store.setSelectedService(mockService);
+    store.setSelectedDate('2026-04-01');
+    store.setSelectedSlot(mockSlot);
+    store.setCustomerInfo({ name: 'Jane', email: 'jane@test.com', phone: '+63917', notes: 'Test' });
+    store.setCurrentStep(3);
+
+    const state = useBookingStore.getState();
+    expect(state.selectedService).toEqual(mockService);
+    expect(state.selectedDate).toBe('2026-04-01');
+    expect(state.selectedSlot).toEqual(mockSlot);
+    expect(state.customerInfo.name).toBe('Jane');
+    expect(state.currentStep).toBe(3);
+  });
 });
