@@ -17,6 +17,7 @@ import { BookingModule } from './modules/booking/booking.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { HealthModule } from './health/health.module';
 import { ReviewModule } from './modules/review/review.module';
+import { WebhookModule } from './modules/webhook/webhook.module';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Module({
@@ -90,6 +91,7 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
     BookingModule,
     NotificationModule,
     ReviewModule,
+    WebhookModule,
     HealthModule,
   ],
   providers: [
