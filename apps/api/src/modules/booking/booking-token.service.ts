@@ -29,10 +29,15 @@ export class BookingTokenService {
     bookingId: string,
     customerEmail: string,
   ): boolean {
+    if (!token) return false;
     const expectedToken = this.generateToken(bookingId, customerEmail);
-    return crypto.timingSafeEqual(
-      Buffer.from(token),
-      Buffer.from(expectedToken),
-    );
+    try {
+      const tokenBuf = Buffer.from(token, 'utf8');
+      const expectedBuf = Buffer.from(expectedToken, 'utf8');
+      if (tokenBuf.length !== expectedBuf.length) return false;
+      return crypto.timingSafeEqual(tokenBuf, expectedBuf);
+    } catch {
+      return false;
+    }
   }
 }

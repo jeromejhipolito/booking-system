@@ -20,6 +20,9 @@ import {
   Min,
   Max,
   IsObject,
+  IsUUID,
+  Length,
+  Matches,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ServiceService } from './service.service';
@@ -34,7 +37,7 @@ export class CreateServiceDto {
   @IsString()
   description?: string;
 
-  @IsString()
+  @IsUUID()
   providerId: string;
 
   @IsOptional()
@@ -60,6 +63,8 @@ export class CreateServiceDto {
 
   @IsOptional()
   @IsString()
+  @Length(3, 3)
+  @Matches(/^[A-Z]{3}$/, { message: 'Currency must be a 3-letter ISO 4217 code' })
   currency?: string;
 
   @IsOptional()

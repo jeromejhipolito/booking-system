@@ -22,6 +22,7 @@ import {
   Max,
   IsUUID,
   IsDateString,
+  IsIn,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
@@ -54,6 +55,7 @@ export class CreateBookingDto {
 
   @IsOptional()
   @IsString()
+  @MaxLength(20)
   customerPhone?: string;
 
   @IsOptional()
@@ -63,6 +65,7 @@ export class CreateBookingDto {
 
   @IsOptional()
   @IsString()
+  @MaxLength(255)
   idempotencyKey?: string;
 }
 
@@ -101,11 +104,11 @@ export class ListBookingsQueryDto {
   limit?: number;
 
   @IsOptional()
-  @IsString()
+  @IsIn(['pending', 'confirmed', 'cancelled', 'completed', 'no_show'])
   status?: string;
 
   @IsOptional()
-  @IsString()
+  @IsUUID()
   providerId?: string;
 }
 

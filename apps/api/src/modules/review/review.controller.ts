@@ -12,6 +12,7 @@ import { Throttle } from '@nestjs/throttler';
 import { IsUUID, IsInt, Min, Max, IsString, IsOptional, MaxLength } from 'class-validator';
 import { ReviewService } from './review.service';
 import { Public } from '../../decorators/public.decorator';
+import { GetReviewsQueryDto } from './dto/get-reviews-query.dto';
 
 export class CreateReviewDto {
   @IsUUID()
@@ -41,15 +42,11 @@ export class ReviewController {
 
   @Public()
   @Get()
-  async getReviews(
-    @Query('serviceId') serviceId: string,
-    @Query('page') page?: string,
-    @Query('limit') limit?: string,
-  ) {
+  async getReviews(@Query() query: GetReviewsQueryDto) {
     return this.reviewService.getReviewsByService(
-      serviceId,
-      page ? parseInt(page, 10) : 1,
-      limit ? parseInt(limit, 10) : 10,
+      query.serviceId,
+      query.page || 1,
+      query.limit || 10,
     );
   }
 }

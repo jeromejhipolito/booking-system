@@ -1,6 +1,7 @@
-import { Controller, Post, Get, Delete, Body, Param, Req } from '@nestjs/common';
+import { Controller, Post, Get, Delete, Body, Param, Req, ParseUUIDPipe } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { WebhookService } from './webhook.service';
+import { CreateWebhookSubscriptionDto } from './dto/create-webhook-subscription.dto';
 
 @ApiTags('Webhooks')
 @ApiBearerAuth()
@@ -10,11 +11,11 @@ export class WebhookController {
 
   @Post('subscriptions')
   async createSubscription(
-    @Body() body: { url: string; eventTypes: string[] },
+    @Body() dto: CreateWebhookSubscriptionDto,
     @Req() req: any,
   ) {
     const providerId = req.user?.providerId || req.user?.id;
-    return this.webhookService.createSubscription(providerId, body.url, body.eventTypes);
+    return this.webhookService.createSubscription(providerId, dto.url, dto.eventTypes);
   }
 
   @Get('subscriptions')
@@ -24,7 +25,7 @@ export class WebhookController {
   }
 
   @Delete('subscriptions/:id')
-  async deactivateSubscription(@Param('id') id: string, @Req() req: any) {
+  async deactivateSubscription(@Param('id', ParseUUIDPipe) id: string, @Req() req: any) {
     const providerId = req.user?.providerId || req.user?.id;
     await this.webhookService.deactivateSubscription(id, providerId);
     return { success: true };

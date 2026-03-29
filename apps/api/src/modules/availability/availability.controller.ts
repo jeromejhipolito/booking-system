@@ -15,12 +15,13 @@ import {
   IsOptional,
   MaxLength,
   Matches,
+  IsUUID,
 } from 'class-validator';
 import { AvailabilityService } from './availability.service';
 import { Public } from '../../decorators/public.decorator';
 
 export class CreateAvailabilityRuleDto {
-  @IsString()
+  @IsUUID()
   providerId: string;
 
   @IsOptional()
@@ -80,7 +81,7 @@ export class AddExceptionDto {
 }
 
 export class SlotsQueryDto {
-  @IsString()
+  @IsUUID()
   providerId: string;
 
   @IsString()
@@ -88,7 +89,7 @@ export class SlotsQueryDto {
   date: string;
 
   @IsOptional()
-  @IsString()
+  @IsUUID()
   serviceId?: string;
 
   @IsOptional()

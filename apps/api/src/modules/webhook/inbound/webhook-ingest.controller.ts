@@ -39,19 +39,21 @@ export class WebhookIngestController {
     const secretEnv = `WEBHOOK_SECRET_${source.toUpperCase()}`;
     const secret = this.configService.get<string>(secretEnv, 'default-webhook-secret');
 
-    if (signature) {
-      const expected = createHmac('sha256', secret).update(rawBody).digest('hex');
-      try {
-        const sigBuffer = Buffer.from(signature, 'utf8');
-        const expectedBuffer = Buffer.from(expected, 'utf8');
-        if (sigBuffer.length !== expectedBuffer.length || !timingSafeEqual(sigBuffer, expectedBuffer)) {
-          this.logger.warn(`Invalid webhook signature from ${source}`);
-          throw new UnauthorizedException('Invalid webhook signature');
-        }
-      } catch (err: any) {
-        if (err instanceof UnauthorizedException) throw err;
+    if (!signature) {
+      throw new UnauthorizedException('Missing X-Webhook-Signature header');
+    }
+
+    const expected = createHmac('sha256', secret).update(rawBody).digest('hex');
+    try {
+      const sigBuffer = Buffer.from(signature, 'utf8');
+      const expectedBuffer = Buffer.from(expected, 'utf8');
+      if (sigBuffer.length !== expectedBuffer.length || !timingSafeEqual(sigBuffer, expectedBuffer)) {
+        this.logger.warn(`Invalid webhook signature from ${source}`);
         throw new UnauthorizedException('Invalid webhook signature');
       }
+    } catch (err: any) {
+      if (err instanceof UnauthorizedException) throw err;
+      throw new UnauthorizedException('Invalid webhook signature');
     }
 
     const externalEventId = payload.id || req.headers['x-webhook-event-id'] || null;
