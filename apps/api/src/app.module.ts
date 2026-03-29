@@ -64,7 +64,7 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
     ThrottlerModule.forRoot([
       {
         ttl: 60000,
-        limit: 100,
+        limit: process.env.NODE_ENV === 'test' ? 10000 : 100,
       },
     ]),
     BullModule.forRootAsync({

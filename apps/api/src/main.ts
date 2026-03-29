@@ -54,6 +54,10 @@ async function bootstrap() {
   SwaggerModule.setup('api-docs', app, document);
 
   // Bull Board — queue monitoring dashboard
+  // NOTE: Disabled until @bull-board/fastify supports Fastify 4
+  // The @fastify/static dependency requires Fastify 5.
+  // Re-enable when upgrading to Fastify 5 or use @bull-board/express adapter.
+  /*
   try {
     const { createBullBoard } = await import('@bull-board/api');
     const { BullMQAdapter } = await import('@bull-board/api/bullMQAdapter');
@@ -68,14 +72,15 @@ async function bootstrap() {
       try {
         const queue = app.get(getQueueToken(name));
         queues.push(new BullMQAdapter(queue));
-      } catch { /* queue not registered yet */ }
+      } catch {}
     }
 
     createBullBoard({ queues, serverAdapter });
     await app.register(serverAdapter.registerPlugin() as any, { prefix: '/admin/queues' });
   } catch (err: any) {
-    // Bull Board is optional — don't crash if it fails
+    // Bull Board is optional
   }
+  */
 
   const port = process.env.PORT || 3001;
   await app.listen(port, '0.0.0.0');
