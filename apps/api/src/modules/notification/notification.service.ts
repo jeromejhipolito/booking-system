@@ -1,11 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 
 import { OutboxEvent } from './outbox-event.entity';
 import { EmailService } from './channels/email.service';
 import { SmsService } from './channels/sms.service';
 import { CalendarService } from './channels/calendar.service';
+import type { NotificationJobData } from './processors/notification.processor';
 
 @Injectable()
 export class NotificationService {
@@ -14,20 +17,38 @@ export class NotificationService {
   constructor(
     @InjectRepository(OutboxEvent)
     private readonly outboxRepo: Repository<OutboxEvent>,
+    @InjectQueue('notifications')
+    private readonly notificationsQueue: Queue<NotificationJobData>,
     private readonly emailService: EmailService,
     private readonly smsService: SmsService,
     private readonly calendarService: CalendarService,
   ) {}
 
   /**
-   * Queue a notification event in the outbox for reliable processing
+   * Queue a notification event: write to outbox table (durability guarantee),
+   * then dispatch to BullMQ for immediate processing.
    */
   async queueEvent(eventType: string, payload: Record<string, any>): Promise<OutboxEvent> {
-    const event = this.outboxRepo.create({
-      eventType,
-      payload,
-    });
-    return this.outboxRepo.save(event);
+    const event = this.outboxRepo.create({ eventType, payload });
+    const saved = await this.outboxRepo.save(event);
+
+    // Dispatch to BullMQ for fast processing
+    try {
+      await this.notificationsQueue.add('process-event', {
+        eventType,
+        payload,
+        outboxId: saved.id,
+      }, {
+        attempts: 5,
+        backoff: { type: 'exponential', delay: 60000 },
+        removeOnComplete: { count: 1000 },
+        removeOnFail: { count: 5000 },
+      });
+    } catch (err: any) {
+      this.logger.warn(`BullMQ dispatch failed, outbox sweep will pick it up: ${err.message}`);
+    }
+
+    return saved;
   }
 
   /**
@@ -67,7 +88,7 @@ export class NotificationService {
       event.error = error.message;
 
       if (event.retryCount >= 5) {
-        event.processed = true; // Give up after 5 retries
+        event.processed = true;
         event.processedAt = new Date();
         this.logger.error(
           `Event ${event.id} failed after ${event.retryCount} retries: ${error.message}`,

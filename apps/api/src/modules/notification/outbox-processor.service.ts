@@ -15,10 +15,11 @@ export class OutboxProcessorService {
   ) {}
 
   /**
-   * Process outbox events every 5 seconds.
+   * Sweep fallback: processes outbox events every 60 seconds.
+   * Primary processing is via BullMQ; this catches anything BullMQ missed.
    * Uses SELECT FOR UPDATE SKIP LOCKED for safe concurrent processing.
    */
-  @Cron('*/5 * * * * *')
+  @Cron('*/60 * * * * *')
   async processOutbox() {
     if (this.processing) {
       return;

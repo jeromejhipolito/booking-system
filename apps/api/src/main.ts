@@ -53,12 +53,37 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api-docs', app, document);
 
+  // Bull Board — queue monitoring dashboard
+  try {
+    const { createBullBoard } = await import('@bull-board/api');
+    const { BullMQAdapter } = await import('@bull-board/api/bullMQAdapter');
+    const { FastifyAdapter: BullFastifyAdapter } = await import('@bull-board/fastify');
+    const { getQueueToken } = await import('@nestjs/bullmq');
+
+    const serverAdapter = new BullFastifyAdapter();
+    serverAdapter.setBasePath('/admin/queues');
+
+    const queues: any[] = [];
+    for (const name of ['notifications', 'webhooks']) {
+      try {
+        const queue = app.get(getQueueToken(name));
+        queues.push(new BullMQAdapter(queue));
+      } catch { /* queue not registered yet */ }
+    }
+
+    createBullBoard({ queues, serverAdapter });
+    await app.register(serverAdapter.registerPlugin() as any, { prefix: '/admin/queues' });
+  } catch (err: any) {
+    // Bull Board is optional — don't crash if it fails
+  }
+
   const port = process.env.PORT || 3001;
   await app.listen(port, '0.0.0.0');
 
   const logger = new Logger('Bootstrap');
   logger.log(`API running on http://localhost:${port}/v1 (Fastify)`);
   logger.log(`Swagger docs: http://localhost:${port}/api-docs`);
+  logger.log(`Queue dashboard: http://localhost:${port}/admin/queues`);
 }
 
 bootstrap();

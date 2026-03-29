@@ -5,6 +5,7 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { CqrsModule } from '@nestjs/cqrs';
 import { ScheduleModule } from '@nestjs/schedule';
 import { LoggerModule } from 'nestjs-pino';
+import { BullModule } from '@nestjs/bullmq';
 import { APP_GUARD } from '@nestjs/core';
 import { randomUUID } from 'crypto';
 import { UserModule } from './modules/user/user.module';
@@ -65,6 +66,20 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
         limit: 100,
       },
     ]),
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        connection: {
+          host: config.get('REDIS_HOST', 'localhost'),
+          port: config.get<number>('REDIS_PORT', 6379),
+        },
+      }),
+    }),
+    BullModule.registerQueue(
+      { name: 'notifications' },
+      { name: 'webhooks' },
+    ),
     CqrsModule.forRoot(),
     ScheduleModule.forRoot(),
     UserModule,
