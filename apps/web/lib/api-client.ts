@@ -53,6 +53,28 @@ function demoIntercept(endpoint: string, options: any = {}): any | null {
     return DEMO_USER;
   }
 
+  // Availability slots
+  if (endpoint.startsWith('/availability/slots') && method === 'GET') {
+    const params = new URLSearchParams(endpoint.split('?')[1] || '');
+    const date = params.get('date') || new Date().toISOString().split('T')[0];
+    const slots = [];
+    const times = [
+      '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
+      '13:00', '13:30', '14:00', '14:30', '15:00', '15:30',
+      '16:00', '16:30', '17:00', '17:30',
+    ];
+    for (const t of times) {
+      const startIso = `${date}T${t}:00.000Z`;
+      const [h, m] = t.split(':').map(Number);
+      const endMin = m + 30;
+      const endH = h + Math.floor(endMin / 60);
+      const endM = endMin % 60;
+      const endIso = `${date}T${String(endH).padStart(2, '0')}:${String(endM).padStart(2, '0')}:00.000Z`;
+      slots.push({ startTime: startIso, endTime: endIso, available: Math.random() > 0.2 });
+    }
+    return { providerId: params.get('providerId'), date, timezone: 'Asia/Manila', slots };
+  }
+
   // Fallback
   return { data: [], meta: {} };
 }
