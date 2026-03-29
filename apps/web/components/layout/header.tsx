@@ -8,7 +8,6 @@ import UserMenuDropdown from './user-menu-dropdown';
 
 const NAV_LINKS = [
   { href: '/services', label: 'Browse Services' },
-  { href: '/#how-it-works', label: 'How It Works' },
 ];
 
 export default function Header() {
