@@ -43,6 +43,7 @@ jobs:
       REDIS_PORT: 6379
       JWT_SECRET: ci-test-secret
       NODE_ENV: test
+      THROTTLE_LIMIT: 10000
 
     steps:
       - uses: actions/checkout@v4
