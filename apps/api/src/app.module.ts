@@ -61,10 +61,12 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
         logging: config.get('NODE_ENV') === 'development',
       }),
     }),
-    ThrottlerModule.forRoot([{
-      ttl: 60000,
-      limit: parseInt(process.env.THROTTLE_LIMIT || '100'),
-    }]),
+    ThrottlerModule.forRootAsync({
+      useFactory: () => [{
+        ttl: 60000,
+        limit: parseInt(process.env.THROTTLE_LIMIT || '100'),
+      }],
+    }),
     BullModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
