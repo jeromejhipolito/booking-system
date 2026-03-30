@@ -92,10 +92,16 @@ jobs:
             curl -sf http://localhost:3001/v1/health && break || sleep 2
           done
 
-      # Run e2e tests
-      - name: Run API tests
-        run: cd apps/api && npx jest --forceExit --detectOpenHandles
+      # Run tests
+      - name: Run unit tests
+        run: cd apps/api && npx jest --config jest-unit.config.json --forceExit
 
-      # Build frontend
+      - name: Run e2e tests
+        run: cd apps/api && npx jest --config test/jest-e2e.json --forceExit --detectOpenHandles --runInBand
+
+      # Frontend
+      - name: Run frontend tests
+        run: cd apps/web && npx vitest run
+
       - name: Build frontend
         run: cd apps/web && NEXT_PUBLIC_DEMO_MODE=true npx next build

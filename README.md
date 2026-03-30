@@ -98,7 +98,7 @@ Each decision maps to a specific failure mode:
 | Queue | BullMQ 5, Redis 7 |
 | Frontend | Next.js 14 (App Router), Tailwind CSS, Zustand |
 | Validation | class-validator (backend), Zod (shared schemas) |
-| Testing | Jest (86 unit), Vitest (24 frontend), Supertest (21 e2e) |
+| Testing | Jest (86 unit), Vitest (23 frontend), Supertest (21 e2e) |
 | Logging | Pino (structured JSON, X-Request-Id correlation) |
 | Monorepo | Turborepo, pnpm workspaces |
 | CI | GitHub Actions (PostgreSQL + Redis services) |
@@ -231,7 +231,7 @@ Tests target the patterns that break in production, not CRUD operations:
 ```bash
 cd apps/api && pnpm test:unit    # 86 backend unit tests
 cd apps/api && pnpm test:e2e     # 21 e2e integration tests
-cd apps/web && pnpm test         # 24 frontend tests
+cd apps/web && pnpm test         # 23 frontend tests
 ```
 
 ## Project Structure

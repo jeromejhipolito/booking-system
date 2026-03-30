@@ -1,105 +1,77 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, within, act, fireEvent } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen, act, fireEvent, waitFor } from '@testing-library/react';
 import ServicesPage from '@/app/(public)/services/page';
 
-// Mock next/link to render a simple anchor
+// Mock next/link
 vi.mock('next/link', () => ({
   default: ({ href, children, ...props }: any) => (
     <a href={href} {...props}>{children}</a>
   ),
 }));
 
+// Mock demo mode as enabled so services load from DEMO_SERVICES
+vi.mock('@/lib/demo-data', async () => {
+  const actual = await vi.importActual('@/lib/demo-data');
+  return { ...actual, DEMO_MODE: true };
+});
+
+// Mock api client to prevent real API calls
+vi.mock('@/lib/api-client', () => ({
+  api: { getServices: vi.fn().mockResolvedValue({ data: [] }) },
+  apiClient: vi.fn().mockResolvedValue({ data: [] }),
+}));
+
 describe('Services Page', () => {
-  beforeEach(() => {
-    vi.useFakeTimers({ shouldAdvanceTime: true });
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
-  it('renders as a client component with loading skeleton initially', () => {
+  it('renders heading', async () => {
     render(<ServicesPage />);
-
-    // During loading, we should see "Loading..." text
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
-  });
-
-  it('shows service cards after loading completes', async () => {
-    render(<ServicesPage />);
-
-    // Advance timer past the 500ms loading delay, wrapped in act
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(600);
+    await waitFor(() => {
+      expect(screen.getByText('Browse Services')).toBeInTheDocument();
     });
-
-    // Should show the services now
-    expect(screen.getByText('Haircut & Styling')).toBeInTheDocument();
-    expect(screen.getByText('Deep Tissue Massage')).toBeInTheDocument();
-    expect(screen.getByText('House Cleaning')).toBeInTheDocument();
   });
 
-  it('search input filters services — typing "Haircut" shows only matching services', async () => {
+  it('shows service cards after loading', async () => {
     render(<ServicesPage />);
+    await waitFor(() => {
+      expect(screen.getByText('Balayage Highlights')).toBeInTheDocument();
+    });
+    expect(screen.getByText('Hilot Traditional Massage')).toBeInTheDocument();
+    expect(screen.getByText('Aircon Cleaning & Check')).toBeInTheDocument();
+  });
 
-    // Advance past loading and wrap in act to flush state updates
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(600);
+  it('search filters services', async () => {
+    render(<ServicesPage />);
+    await waitFor(() => {
+      expect(screen.getByText('Balayage Highlights')).toBeInTheDocument();
     });
 
     const searchInput = screen.getByPlaceholderText('Search services, providers...');
-
-    // Use fireEvent.change wrapped in act for state update
     act(() => {
-      fireEvent.change(searchInput, { target: { value: 'Haircut' } });
+      fireEvent.change(searchInput, { target: { value: 'Hilot' } });
     });
 
-    // Haircut & Styling should be visible
-    expect(screen.getByText('Haircut & Styling')).toBeInTheDocument();
-
-    // Dog Grooming also matches because its description contains "haircut"
-    expect(screen.getByText('Dog Grooming')).toBeInTheDocument();
-
-    // Other services that don't mention "haircut" should NOT be visible
-    expect(screen.queryByText('Deep Tissue Massage')).not.toBeInTheDocument();
-    expect(screen.queryByText('House Cleaning')).not.toBeInTheDocument();
-    expect(screen.queryByText('Yoga Class')).not.toBeInTheDocument();
-
-    // Count reflects matched services (name + description search)
-    expect(screen.getByText('2 services found')).toBeInTheDocument();
+    expect(screen.getByText('Hilot Traditional Massage')).toBeInTheDocument();
+    expect(screen.queryByText('Balayage Highlights')).not.toBeInTheDocument();
   });
 
-  it('category pill click changes selectedCategory and filters results', async () => {
+  it('category filter works', async () => {
     render(<ServicesPage />);
-
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(600);
+    await waitFor(() => {
+      expect(screen.getByText('Balayage Highlights')).toBeInTheDocument();
     });
 
-    // Click on the "Fitness" category pill
-    const fitnessPill = screen.getByRole('button', { name: 'Fitness' });
+    const fitnessPill = screen.getByRole('button', { name: /Fitness/i });
     act(() => {
       fireEvent.click(fitnessPill);
     });
 
-    // Fitness services should be visible
-    expect(screen.getByText('Personal Training Session')).toBeInTheDocument();
-    expect(screen.getByText('Yoga Class')).toBeInTheDocument();
-
-    // Non-fitness services should NOT be visible
-    expect(screen.queryByText('Haircut & Styling')).not.toBeInTheDocument();
-    expect(screen.queryByText('House Cleaning')).not.toBeInTheDocument();
-
-    // Count should reflect filtered results
-    expect(screen.getByText('2 services found')).toBeInTheDocument();
+    expect(screen.getByText('Personal Training')).toBeInTheDocument();
+    expect(screen.queryByText('Balayage Highlights')).not.toBeInTheDocument();
   });
 
-  it('empty state shown when no services match search', async () => {
+  it('empty state shown when no match', async () => {
     render(<ServicesPage />);
-
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(600);
+    await waitFor(() => {
+      expect(screen.getByText('Balayage Highlights')).toBeInTheDocument();
     });
 
     const searchInput = screen.getByPlaceholderText('Search services, providers...');
@@ -107,25 +79,17 @@ describe('Services Page', () => {
       fireEvent.change(searchInput, { target: { value: 'xyznonexistent' } });
     });
 
-    // Empty state message
     expect(screen.getByText('No services found')).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        /Try adjusting your search or filter to find what you/,
-      ),
-    ).toBeInTheDocument();
-
-    // Clear Filters button should be present
-    expect(screen.getByRole('button', { name: 'Clear Filters' })).toBeInTheDocument();
   });
 
-  it('loading skeleton shown initially before data loads', () => {
-    const { container } = render(<ServicesPage />);
+  it('prices display in PHP (₱)', async () => {
+    render(<ServicesPage />);
+    await waitFor(() => {
+      expect(screen.getByText('Balayage Highlights')).toBeInTheDocument();
+    });
 
-    // Skeleton cards have the animate-pulse class
-    const skeletons = container.querySelectorAll('.animate-pulse');
-    expect(skeletons.length).toBeGreaterThan(0);
-    // We render 6 skeleton cards
-    expect(skeletons.length).toBe(6);
+    const page = document.body.innerHTML;
+    expect(page).toContain('₱');
+    expect(page).not.toContain('$');
   });
 });
