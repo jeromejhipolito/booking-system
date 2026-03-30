@@ -10,14 +10,14 @@ describe('Webhooks (e2e)', () => {
     it('should accept webhook with valid HMAC signature (202)', async () => {
       const payload = JSON.stringify({
         id: `evt-${Date.now()}`,
-        event_type: 'orders/create',
-        data: { order_id: '12345', total: 1500 },
+        event_type: 'booking.synced',
+        data: { bookingId: '12345', status: 'confirmed' },
       });
 
       const signature = createHmac('sha256', secret).update(payload).digest('hex');
 
       const res = await request(API_URL)
-        .post('/v1/webhooks/ingest/shopify')
+        .post('/v1/webhooks/ingest/calendar-sync')
         .set('Content-Type', 'application/json')
         .set('X-Webhook-Signature', signature)
         .send(payload)
@@ -30,12 +30,12 @@ describe('Webhooks (e2e)', () => {
     it('should reject webhook with invalid signature (401)', async () => {
       const payload = JSON.stringify({
         id: `evt-bad-${Date.now()}`,
-        event_type: 'orders/create',
-        data: { order_id: '99999' },
+        event_type: 'booking.synced',
+        data: { bookingId: '99999' },
       });
 
       await request(API_URL)
-        .post('/v1/webhooks/ingest/shopify')
+        .post('/v1/webhooks/ingest/calendar-sync')
         .set('Content-Type', 'application/json')
         .set('X-Webhook-Signature', 'invalid-signature-here')
         .send(payload)
@@ -46,15 +46,15 @@ describe('Webhooks (e2e)', () => {
       const eventId = `evt-dup-${Date.now()}`;
       const payload = JSON.stringify({
         id: eventId,
-        event_type: 'orders/update',
-        data: { order_id: '11111' },
+        event_type: 'booking.updated',
+        data: { bookingId: '11111' },
       });
 
       const signature = createHmac('sha256', secret).update(payload).digest('hex');
 
       // First request
       await request(API_URL)
-        .post('/v1/webhooks/ingest/shopify')
+        .post('/v1/webhooks/ingest/calendar-sync')
         .set('Content-Type', 'application/json')
         .set('X-Webhook-Signature', signature)
         .send(payload)
@@ -62,7 +62,7 @@ describe('Webhooks (e2e)', () => {
 
       // Duplicate request with same event ID
       const res = await request(API_URL)
-        .post('/v1/webhooks/ingest/shopify')
+        .post('/v1/webhooks/ingest/calendar-sync')
         .set('Content-Type', 'application/json')
         .set('X-Webhook-Signature', signature)
         .send(payload)
