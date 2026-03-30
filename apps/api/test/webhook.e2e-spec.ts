@@ -76,9 +76,15 @@ describe('Webhooks (e2e)', () => {
     it('should generate valid access tokens for bookings', async () => {
       // Register + create provider + service + booking
       const email = `hmac-test-${Date.now()}@example.com`;
-      const reg = await request(API_URL)
+      let reg = await request(API_URL)
         .post('/v1/auth/register')
         .send({ email, password: 'HmacTest123!', firstName: 'HMAC', lastName: 'Test', role: 'provider' });
+
+      if (reg.status === 409) {
+        reg = await request(API_URL)
+          .post('/v1/auth/login')
+          .send({ email, password: 'HmacTest123!' });
+      }
 
       const token = reg.body.accessToken;
 

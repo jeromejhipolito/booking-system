@@ -9,8 +9,8 @@ describe('Services (e2e)', () => {
   const providerPassword = 'ProviderPass123!';
 
   beforeAll(async () => {
-    // Register a provider user
-    const registerRes = await request(API_URL)
+    // Register a provider user (or login if already exists)
+    let registerRes = await request(API_URL)
       .post('/v1/auth/register')
       .send({
         email: providerEmail,
@@ -19,6 +19,12 @@ describe('Services (e2e)', () => {
         lastName: 'Provider',
         role: 'provider',
       });
+
+    if (registerRes.status === 409) {
+      registerRes = await request(API_URL)
+        .post('/v1/auth/login')
+        .send({ email: providerEmail, password: providerPassword });
+    }
 
     providerAccessToken = registerRes.body.accessToken;
 
