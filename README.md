@@ -26,7 +26,7 @@ graph TB
     end
 
     subgraph "External"
-        EXT["Payment / Calendar<br/>(Inbound Webhooks)"]
+        EXT["Third-Party Services<br/>(Inbound Webhooks)"]
         PROVIDER["Provider Endpoints<br/>(Outbound Webhooks)"]
     end
 
@@ -262,7 +262,7 @@ This is a portfolio demonstration. In a production system, I would add:
 - **Rate Limiting per Provider** — Prevent a single provider's webhook failures from consuming all BullMQ workers.
 - **Horizontal Scaling** — Separate worker processes, PgBouncer for connection pooling, Redis Cluster.
 - **Database Partitioning** — Partition bookings by month for query performance at scale.
-- **Payment Integration** — Stripe/PayMongo webhook receiver for payment confirmations. The inbound webhook infrastructure is already built.
+- **Payment Integration** — Stripe or PayMongo for paid bookings. The inbound webhook infrastructure is already built to receive payment confirmations.
 - **Secrets Management** — AWS Secrets Manager or Vault for webhook secrets and JWT keys.
 
 ---
