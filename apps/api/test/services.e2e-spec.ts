@@ -28,6 +28,10 @@ describe('Services (e2e)', () => {
 
     providerAccessToken = registerRes.body.accessToken;
 
+    if (!providerAccessToken) {
+      throw new Error(`Auth failed: status=${registerRes.status} body=${JSON.stringify(registerRes.body)}`);
+    }
+
     // Create a provider profile
     const providerRes = await request(API_URL)
       .post('/v1/providers')

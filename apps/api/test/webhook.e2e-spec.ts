@@ -116,17 +116,18 @@ describe('Webhooks (e2e)', () => {
       expect(booking.body.accessToken).toBeDefined();
       expect(booking.body.accessToken.length).toBeGreaterThan(10);
 
+      // Cancel with wrong token should fail (403 Forbidden)
+      // Test this BEFORE the valid cancel so the booking is still active
+      await request(API_URL)
+        .patch(`/v1/bookings/${booking.body.id}/cancel`)
+        .send({ token: 'wrong-token-here', reason: 'Should fail' })
+        .expect(403);
+
       // Cancel with valid token should succeed
       await request(API_URL)
         .patch(`/v1/bookings/${booking.body.id}/cancel`)
         .send({ token: booking.body.accessToken, reason: 'HMAC test' })
         .expect(200);
-
-      // Cancel with wrong token should fail
-      await request(API_URL)
-        .patch(`/v1/bookings/${booking.body.id}/cancel`)
-        .send({ token: 'wrong-token-here', reason: 'Should fail' })
-        .expect(403);
     });
   });
 });
