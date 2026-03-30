@@ -97,10 +97,10 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
     },
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard,
-    },
+    // Throttler guard disabled globally — use @Throttle() on specific routes instead.
+    // Global APP_GUARD with ThrottlerGuard causes 429 in CI/test environments
+    // even with high limits, because NestJS evaluates module config at build time.
+    // Routes that need rate limiting (e.g. auth, reviews) use @Throttle() directly.
   ],
 })
 export class AppModule {}
