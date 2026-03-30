@@ -1,104 +1,122 @@
-# BookIt — Service Booking Platform for Metro Manila
+# BookIt
 
-Independent service providers in Metro Manila lose bookings to Messenger DMs and manual scheduling. This platform gives each provider a shareable booking link with real-time availability.
+[![CI](https://github.com/jeromejhipolito/booking-system/actions/workflows/ci.yml/badge.svg)](https://github.com/jeromejhipolito/booking-system/actions/workflows/ci.yml)
 
-Built solo by **Jerome Hipolito** — NestJS (Fastify) + Next.js 14 + PostgreSQL + BullMQ.
+Service booking platform for Metro Manila providers. Each provider gets a shareable booking link with real-time availability — replacing Messenger DMs and manual scheduling.
 
----
+Built with **NestJS (Fastify)**, **TypeORM**, **PostgreSQL**, **BullMQ**, and **Next.js 14**.
 
-## Architecture Decisions
+## Architecture
 
-### ADR 1: Double-booking prevention via PostgreSQL EXCLUSION constraint
+```mermaid
+graph TB
+    subgraph "Frontend"
+        WEB["Next.js 14 App Router<br/>(Customer + Provider views)"]
+    end
 
-**Decision:** PostgreSQL `EXCLUSION` constraint with `tstzrange && operator` on the bookings table.
+    subgraph "Backend"
+        API["NestJS API (Fastify)"]
+        WORKER["BullMQ Workers"]
+        CRON["Outbox Sweep (60s)"]
+    end
 
-**Rejected alternatives:**
-- Application-level check-then-insert — TOCTOU race condition under concurrent load
-- Redis distributed lock — adds external dependency, still not atomic with the DB write
+    subgraph "Infrastructure"
+        PG["PostgreSQL 16"]
+        REDIS["Redis 7"]
+    end
 
-**Result:** The database guarantees zero double-bookings under concurrent requests. No application code needed for conflict detection.
+    subgraph "External"
+        EXT["Shopify / Carriers<br/>(Inbound Webhooks)"]
+        PROVIDER["Provider Endpoints<br/>(Outbound Webhooks)"]
+    end
 
-### ADR 2: Guest checkout with HMAC-signed access tokens
+    WEB -->|"REST API"| API
+    EXT -->|"HMAC-signed webhooks"| API
+    API -->|"CQRS Commands"| PG
+    API -->|"Outbox events<br/>(same transaction)"| PG
+    API -->|"Enqueue jobs"| REDIS
+    REDIS -->|"Process"| WORKER
+    WORKER -->|"HMAC-signed POST"| PROVIDER
+    WORKER -->|"Update state"| PG
+    CRON -->|"Sweep missed events"| PG
+```
 
-**Decision:** HMAC-signed access tokens embedded in email links for cancel/reschedule without login.
+### Booking Flow
 
-**Rejected alternatives:**
-- Forcing registration — increases abandonment for a booking flow
-- JWT for guests — requires a user record to exist
-- Unsigned tokens — trivially spoofable
+```
+Customer selects slot → POST /bookings (idempotency key)
+                              ↓
+                    ┌─ Check idempotency (return existing if duplicate)
+                    ├─ Validate service (active? exists?)
+                    ├─ Find/create customer by email
+                    ├─ Calculate end time from duration
+                    ├─ Save booking (EXCLUSION constraint prevents overlaps)
+                    ├─ Generate HMAC access token
+                    ├─ Publish BookingConfirmedEvent
+                    │       ↓
+                    │   EventsHandler → Outbox table (same tx)
+                    │       ↓                    ↓
+                    │   BullMQ (immediate)    Cron sweep (fallback)
+                    │       ↓
+                    │   ├─ Email confirmation
+                    │   ├─ Calendar .ics
+                    │   └─ Webhook delivery (HMAC-signed)
+                    └─ Return booking + access token
+```
 
-**Result:** Guests manage their bookings via email links. No account required. Tokens are tamper-proof and verified with timing-safe comparison.
+## Key Technical Decisions
 
-### ADR 3: Outbox pattern for reliable notifications
+| Decision | Rationale |
+|----------|-----------|
+| **PostgreSQL EXCLUSION constraint** over app-level locking | Database guarantees zero double-bookings atomically. App-level check-then-insert has a TOCTOU race condition. Redis distributed lock adds external dependency without atomicity. |
+| **Transactional Outbox + BullMQ** over direct queue dispatch | If DB transaction succeeds but Redis is down, the event would be lost. Outbox writes in the same transaction. BullMQ provides immediate processing; cron sweep catches anything BullMQ missed. |
+| **HMAC-signed guest tokens** over forced registration | Customers manage bookings (cancel/reschedule) via email links without creating an account. Tokens are generated with `crypto.createHmac('sha256')` and verified with `timingSafeEqual`. |
+| **Inbound webhook signature verification** as mandatory | Every inbound webhook must include `X-Webhook-Signature`. Missing header → 401. Prevents unsigned event injection from attackers. |
+| **Outbound HMAC-signed webhooks** with delivery log | Providers receive booking events at registered URLs. Each delivery is signed, logged with status code, and retried with exponential backoff (5 attempts). |
+| **CQRS with domain events** over service-to-service calls | Commands (CreateBooking, CancelBooking) publish events. Separate handlers route to outbox, webhooks, and notifications — decoupled and independently testable. |
+| **Modular monolith** over microservices | 10 domain modules with clean boundaries. Splitting into services adds distributed complexity with zero benefit at this scale. |
+| **Individual TypeORM migrations** over monolith SQL | 11 migrations, one per table, each with `up()` and `down()`. Tracks applied state in `migrations` table. Rollback anytime with `pnpm migration:revert`. |
+| **Fastify adapter** over Express | NestJS supports both. Fastify provides better performance, plugin model, and schema-based validation. Swapped from Express via `@nestjs/platform-fastify`. |
+| **Pino structured logging** over console.log | JSON logs with X-Request-Id correlation. Every request gets a unique ID propagated through all log context. Health endpoint excluded from auto-logging to reduce noise. |
 
-**Decision:** `outbox_events` table processed with `SELECT FOR UPDATE SKIP LOCKED`, backed by BullMQ for immediate processing.
+## Why These Patterns?
 
-**Rejected alternatives:**
-- Inline `sendEmail()` in command handler — synchronous failure blocks the booking
-- Fire-and-forget async — no retry, no audit trail
-- BullMQ alone without outbox — loses events if Redis goes down
+Each decision maps to a specific failure mode:
 
-**Result:** Belt-and-suspenders reliability: outbox table for durability guarantee, BullMQ for speed. Exponential backoff retries (5 attempts). Cron sweep as fallback.
+- **EXCLUSION Constraint** — Two customers book the same slot simultaneously. Without a database-level constraint, both succeed (TOCTOU race). The `tstzrange && operator` with `btree_gist` makes overlapping bookings physically impossible at the storage layer. Tested with 5 concurrent requests — exactly 1 wins, 4 get 409.
 
-### ADR 4: Webhook system with HMAC-signed delivery
+- **Transactional Outbox** — The API creates a booking and needs to send a confirmation email. If the email service is down, the customer never gets notified. Writing to the outbox in the same transaction as the booking guarantees the event survives. BullMQ picks it up immediately; the cron sweep catches anything missed.
 
-**Decision:** Outbound webhooks signed with HMAC-SHA256, delivered via BullMQ with exponential backoff. Inbound webhooks verified with timing-safe signature comparison and idempotent on external event ID.
+- **Idempotency Keys** — A network timeout after the customer clicks "Book" causes the browser to retry. Without idempotency, the retry creates a second booking. The `idempotency_key` column with a partial unique index means the second request returns the original booking — no duplicate.
 
-**Rejected alternatives:**
-- Synchronous delivery in request handler — blocks the booking flow
-- Unsigned payloads — no tamper detection for receivers
-
-**Result:** Providers receive real-time booking events at their registered URLs. External services (Shopify, carriers) can push events with guaranteed deduplication.
-
----
-
-## What Was Deliberately NOT Built
-
-- **Payment processing** — Booking abandonment is caused by form friction, not payment hesitation. Validating the flow first.
-- **Microservices** — Modules are cleanly separated by domain boundary (booking, provider, notification, webhook). Splitting into services adds distributed complexity with zero benefit at this scale.
-- **Redis caching** — Slot queries hit a single date partition and return in <10ms. Would add Redis caching at 100x current load.
-
----
+- **HMAC Guest Tokens** — Requiring login to cancel a booking increases friction and support tickets. HMAC tokens embedded in email links let guests manage bookings securely. `timingSafeEqual` prevents timing attacks on token validation.
 
 ## Tech Stack
 
-- **Backend:** NestJS (Fastify adapter), TypeORM, PostgreSQL, BullMQ + Redis, CQRS
-- **Frontend:** Next.js 14 (App Router), Tailwind CSS, Zustand
-- **Infrastructure:** Docker Compose, GitHub Actions CI, Pino structured logging
-- **Monorepo:** pnpm workspaces + Turborepo
-- **Shared Packages:** Types, Zod schemas, constants, utilities
-
-## Key Backend Features
-
-- **Fastify** HTTP adapter (swapped from Express)
-- **BullMQ** queues for notifications + webhook delivery with exponential backoff
-- **Outbound webhooks** — HMAC-SHA256 signed, delivery log with retry tracking
-- **Inbound webhooks** — signature verification, idempotent dedup on external event ID
-- **Structured logging** — Pino with JSON output, X-Request-Id correlation
-- **CQRS** — commands, queries, and domain events via NestJS CqrsModule
-- **TypeORM migrations** — 11 individual migrations with `up()` and `down()` rollback
-- **124 tests** — 86 backend unit, 17 frontend, 21 e2e integration
-
----
+| Layer | Technology |
+|-------|-----------|
+| Backend | NestJS 10, Fastify 4, TypeScript, CQRS |
+| ORM | TypeORM 0.3, PostgreSQL 16 |
+| Queue | BullMQ 5, Redis 7 |
+| Frontend | Next.js 14 (App Router), Tailwind CSS, Zustand |
+| Validation | class-validator (backend), Zod (shared schemas) |
+| Testing | Jest (86 unit), Vitest (17 frontend), Supertest (21 e2e) |
+| Logging | Pino (structured JSON, X-Request-Id correlation) |
+| Monorepo | Turborepo, pnpm workspaces |
+| CI | GitHub Actions (PostgreSQL + Redis services) |
 
 ## Quick Start
 
-### Demo Mode (no backend needed)
-
 ```bash
+# Prerequisites: Node.js 20+, pnpm, Docker
+
+# 1. Clone and install
+git clone https://github.com/jeromejhipolito/booking-system.git
+cd booking-system
 pnpm install
-echo "NEXT_PUBLIC_DEMO_MODE=true" > apps/web/.env.local
-cd apps/web && npx next dev --port 3002
-```
 
-### Full Stack
-
-```bash
-# 1. Start databases
+# 2. Start infrastructure
 docker compose up -d
-
-# 2. Install dependencies
-pnpm install
 
 # 3. Build shared packages
 for pkg in shared-types shared-schemas shared-constants shared-utils; do
@@ -115,7 +133,19 @@ cd apps/api && npx nest start
 cd apps/web && npx next dev --port 3002
 ```
 
-### Database Migrations
+- **API**: http://localhost:3001/v1
+- **Frontend**: http://localhost:3002
+- **Swagger**: http://localhost:3001/api-docs
+- **Health**: http://localhost:3001/v1/health
+
+### Demo Mode (no backend needed)
+
+```bash
+echo "NEXT_PUBLIC_DEMO_MODE=true" > apps/web/.env.local
+cd apps/web && npx next dev --port 3002
+```
+
+## Database Migrations
 
 ```bash
 cd apps/api
@@ -124,62 +154,117 @@ pnpm migration:revert   # rollback last migration
 pnpm migration:show     # list migration status
 ```
 
-### Running Tests
+11 individual migrations, one per table:
+
+| # | Migration | What It Creates |
+|---|-----------|----------------|
+| 1 | CreateUsersAndAuth | users + refresh_tokens |
+| 2 | CreateProviders | provider profiles + settings |
+| 3 | CreateCustomers | customer records |
+| 4 | CreateServices | service catalog + types |
+| 5 | CreateAvailabilityRules | RRULE-based scheduling |
+| 6 | CreateBookings | bookings + EXCLUSION constraint |
+| 7 | CreateOutboxEvents | reliable event delivery |
+| 8 | CreateReviews | ratings + comments |
+| 9 | CreateWebhookSubscriptions | provider webhook URLs |
+| 10 | CreateWebhookDeliveries | outbound delivery log |
+| 11 | CreateWebhookIngestedEvents | inbound event store |
+
+## API Endpoints
+
+### Public (no auth)
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/v1/health` | Liveness + DB + Redis status |
+| `POST` | `/v1/bookings` | Create booking (guest checkout) |
+| `GET` | `/v1/bookings/:id` | View booking (with access token) |
+| `PATCH` | `/v1/bookings/:id/cancel` | Cancel (token or auth) |
+| `PATCH` | `/v1/bookings/:id/reschedule` | Reschedule (token or auth) |
+| `GET` | `/v1/services` | Browse services |
+| `GET` | `/v1/services/:id` | Service detail |
+| `POST` | `/v1/webhooks/ingest/:source` | Receive external webhooks |
+
+### Authenticated (Bearer JWT + Idempotency-Key on writes)
+| Method | Path | Purpose |
+|--------|------|---------|
+| `POST` | `/v1/providers` | Create provider profile |
+| `POST` | `/v1/services` | Create service |
+| `POST` | `/v1/availability/rules` | Set availability schedule |
+| `GET` | `/v1/bookings` | List bookings (paginated) |
+| `POST` | `/v1/webhooks/subscriptions` | Register webhook endpoint |
+| `GET` | `/v1/webhooks/deliveries` | View delivery history |
+| `POST` | `/v1/reviews` | Leave a review |
+
+## Reliability Test Suite
+
+Tests target the patterns that break in production, not CRUD operations:
+
+| Test | Pattern Verified |
+|------|-----------------|
+| Same idempotency key returns same booking | Duplicate prevention |
+| Overlapping time slot returns 409 | EXCLUSION constraint |
+| 5 concurrent requests — exactly 1 wins | Race condition safety |
+| Cancelled slot can be rebooked | Constraint respects status |
+| Valid HMAC signature accepted (202) | Webhook security |
+| Invalid HMAC signature rejected (401) | Tamper detection |
+| Duplicate external event ID ignored | Inbound deduplication |
+| Wrong-length token returns 403, not 500 | Timing-safe validation |
+| Outbox event created on booking | Event bridge integrity |
+| BullMQ dispatched after outbox write | Belt-and-suspenders delivery |
+| Notification routes to correct channel | Event routing |
+| Max retry marks event as failed | Circuit breaker |
 
 ```bash
-# Backend unit tests (no DB required)
-cd apps/api && pnpm test:unit
-
-# Backend e2e tests (requires running API + DB)
-cd apps/api && pnpm test:e2e
-
-# Frontend tests
-cd apps/web && pnpm test
+pnpm test:unit          # 86 backend unit tests
+pnpm test:e2e           # 21 e2e integration tests
+cd ../web && pnpm test  # 17 frontend tests
 ```
-
----
 
 ## Project Structure
 
 ```
 booking-system/
 ├── apps/
-│   ├── api/                          # NestJS backend (port 3001)
+│   ├── api/                          # NestJS backend (Fastify, port 3001)
 │   │   ├── src/
 │   │   │   ├── database/
 │   │   │   │   ├── data-source.ts    # TypeORM CLI config
-│   │   │   │   └── migrations/       # 11 individual migrations
+│   │   │   │   └── migrations/       # 11 individual migrations (up + down)
 │   │   │   ├── modules/
-│   │   │   │   ├── booking/          # CQRS commands, queries, events
-│   │   │   │   ├── notification/     # Outbox + BullMQ processors
-│   │   │   │   ├── webhook/          # Outbound + inbound webhooks
-│   │   │   │   ├── provider/
-│   │   │   │   ├── service/
-│   │   │   │   ├── customer/
-│   │   │   │   ├── availability/
-│   │   │   │   ├── review/
-│   │   │   │   └── user/
+│   │   │   │   ├── booking/          # CQRS commands, queries, events, tests
+│   │   │   │   ├── notification/     # Outbox + BullMQ + event handlers
+│   │   │   │   ├── webhook/          # Outbound + inbound + HMAC signing
+│   │   │   │   ├── provider/         # Business profiles + settings
+│   │   │   │   ├── service/          # Service catalog
+│   │   │   │   ├── customer/         # Guest + registered customers
+│   │   │   │   ├── availability/     # RRULE scheduling + slot calculation
+│   │   │   │   ├── review/           # Ratings + comments
+│   │   │   │   └── user/             # Auth + JWT + roles
 │   │   │   └── health/               # DB + Redis health checks
 │   │   └── test/                     # E2E integration tests
-│   └── web/                          # Next.js frontend (port 3002)
+│   └── web/                          # Next.js 14 frontend (port 3002)
 ├── packages/
-│   ├── shared-types/
-│   ├── shared-schemas/               # Zod validation schemas
+│   ├── shared-types/                 # TypeScript interfaces
+│   ├── shared-schemas/               # Zod validation (shared FE/BE)
 │   ├── shared-constants/
 │   └── shared-utils/
-├── .github/workflows/ci.yml          # GitHub Actions pipeline
-├── docker-compose.yml
+├── .github/workflows/ci.yml          # GitHub Actions (PG + Redis)
+├── docker-compose.yml                # PostgreSQL 16 + Redis 7
 └── pnpm-workspace.yaml
 ```
 
-## Deploy to Vercel (Frontend Only — Demo Mode)
+## What I'd Add in Production
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fjeromejhipolito%2Fbooking-system&env=NEXT_PUBLIC_DEMO_MODE&envDescription=Set%20to%20true%20for%20demo%20mode&project-name=booking-system&root-directory=apps/web)
+This is a portfolio demonstration. In a production system, I would add:
 
-**Root Directory:** `apps/web`
-**Build Command:** `cd ../.. && pnpm install && pnpm --filter @booking/shared-types build && pnpm --filter @booking/shared-schemas build && pnpm --filter @booking/shared-constants build && pnpm --filter @booking/shared-utils build && cd apps/web && npx next build`
-**Environment Variable:** `NEXT_PUBLIC_DEMO_MODE=true`
+- **Payment Processing** — Stripe integration with webhook confirmation. Currently omitted because booking abandonment is caused by form friction, not payment hesitation.
+- **Observability** — OpenTelemetry traces, Sentry for error tracking, Grafana dashboards for queue depth and delivery latency.
+- **Rate Limiting per Provider** — Prevent a single provider's webhook failures from consuming all BullMQ workers.
+- **Horizontal Scaling** — Separate worker processes, PgBouncer for connection pooling, Redis Cluster.
+- **Database Partitioning** — Partition bookings by month for query performance at scale.
+- **Real Shopify OAuth** — Full OAuth 2.0 flow with token refresh for the inbound webhook integration.
+- **Secrets Management** — AWS Secrets Manager or Vault for webhook secrets and JWT keys.
 
-## API Documentation
+---
 
-Start the API, then visit: http://localhost:3001/api-docs
+Built by [Jerome Hipolito](https://github.com/jeromejhipolito)
