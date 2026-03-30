@@ -26,7 +26,7 @@ graph TB
     end
 
     subgraph "External"
-        EXT["Shopify / Carriers<br/>(Inbound Webhooks)"]
+        EXT["Payment / Calendar<br/>(Inbound Webhooks)"]
         PROVIDER["Provider Endpoints<br/>(Outbound Webhooks)"]
     end
 
@@ -262,7 +262,7 @@ This is a portfolio demonstration. In a production system, I would add:
 - **Rate Limiting per Provider** — Prevent a single provider's webhook failures from consuming all BullMQ workers.
 - **Horizontal Scaling** — Separate worker processes, PgBouncer for connection pooling, Redis Cluster.
 - **Database Partitioning** — Partition bookings by month for query performance at scale.
-- **Real Shopify OAuth** — Full OAuth 2.0 flow with token refresh for the inbound webhook integration.
+- **Payment Integration** — Stripe/PayMongo webhook receiver for payment confirmations. The inbound webhook infrastructure is already built.
 - **Secrets Management** — AWS Secrets Manager or Vault for webhook secrets and JWT keys.
 
 ---
